@@ -3,13 +3,13 @@ import time
 import random
 import subprocess
 import re
+import os
 
-raw_ip = subprocess.Popen(['arp','-a'], stdout=subprocess.PIPE).communicate()
-expression = '\d+\.\d+\.\d+\.\d+'
-UDP_IP = re.findall(expression, str(raw_ip))
-print(UDP_IP)
+UDP_IP = os.environ['ips'].split()
 UDP_PORT = 5005
 id = 'appliance'
+
+count = 0
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -25,3 +25,6 @@ while True:
     except:
       UDP_IP.remove(x)
   time.sleep(5)
+  count = (count + 1) % 3
+  if(count == 0):
+    UDP_IP = os.environ['ips'].split()
