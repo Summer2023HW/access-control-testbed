@@ -10,6 +10,7 @@ id = 'appliance'
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((UDP_IP, UDP_PORT))
+os.environ['send'] = ""
 
 while True:
   data, addr = sock.recvfrom(1024)  #let's pretend the format is: [type], [request], [information list]
@@ -19,8 +20,11 @@ while True:
     case 'arbiter':
       switch(components[1]):
         case 'new_ip':
+          ip_list = os.environ['ips'].split()
           for x in range(2, len(components)):
-            os.environ['ips'] = os.environ['ips'] + ' ' + x
+            if(x not in ip_list):
+                ip_list.append(x)
+          os.environ['ips'] = str(ip_list)
         case 'remove_ip':
           ip_list = os.environ['ips'].split()
           for x in range(2, len(components)):
@@ -29,3 +33,5 @@ while True:
           for x in ip_list:
             new_ips += ' ' + x
           os.environ['ips'] = new_ips
+        case 'who':
+          os.environ['send'] = str(addr) + " " + id

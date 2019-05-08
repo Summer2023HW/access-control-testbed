@@ -28,3 +28,9 @@ while True:
   count = (count + 1) % 3
   if(count == 0):
     UDP_IP = os.environ['ips'].split()
+  if(os.environ['send'] != ""):
+    try:
+      sock.sendto(os.environ['send'].split()[1].encode(), (os.environ['send'].split()[1], UDP_PORT))
+    except:
+      print("Reactive message sending by ip failure")
+    os.environ['send'] = ""
