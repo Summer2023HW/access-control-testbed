@@ -10,22 +10,21 @@ id = 'appliance'
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((UDP_IP, UDP_PORT))
-os.environ['send'] = ""
+
+send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 while True:
   data, addr = sock.recvfrom(1024)  #let's pretend the format is: [type], [request], [information list]
   components = data.split()
-  #some kind of verification
-  switch(components[0]):
-    case 'arbiter':
-      switch(components[1]):
-        case 'new_ip':
+  #some kind of verification of the arbiter
+  if(components[0] == 'arbiter'):
+      if(components[1] == 'new_ip'):
           ip_list = os.environ['ips'].split()
           for x in range(2, len(components)):
             if(x not in ip_list):
                 ip_list.append(x)
           os.environ['ips'] = str(ip_list)
-        case 'remove_ip':
+      elif(components[1] == 'remove_ip'):
           ip_list = os.environ['ips'].split()
           for x in range(2, len(components)):
             ip_list.remove(x)
@@ -33,5 +32,8 @@ while True:
           for x in ip_list:
             new_ips += ' ' + x
           os.environ['ips'] = new_ips
-        case 'who':
-          os.environ['send'] = str(addr) + " " + id
+      elif(components[1] == 'who'):
+          try:
+            send_sock.sendto(id.encode(), (str(addr), UDP_PORT))
+          except:
+            print('Error in sending message to ' + str(addr))

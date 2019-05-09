@@ -10,15 +10,15 @@ id = 'arbiter'
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 sock.bind((UDP_IP, UDP_PORT))
-os.environ['send'] = ""
+
+send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 while True:
   data, addr = sock.recvfrom(1024)
   components = data.split()
-  switch(data):
-    case 'appliance':
+  if(data == 'appliance'):
       os.environ[addr] = data + " " + addr
-    case 'smart_meter':
+  elif(data == 'smart_meter'):
       os.environ[addr] = data + " " + addr
-    case 'device':
+  elif(data == 'device'):
       os.environ[addr] = data + " " + addr

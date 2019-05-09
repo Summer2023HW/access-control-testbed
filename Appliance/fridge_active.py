@@ -8,6 +8,7 @@ import os
 UDP_IP = os.environ['ips'].split()
 UDP_PORT = 5005
 id = 'appliance'
+type = 'fridge'
 
 count = 0
 
@@ -17,9 +18,7 @@ while True:
   numWat = random.randint(0, 50)
   numElec = random.randint(0, 100)
   message = "w:" + str(numWat) + " e:" + str(numElec)
-  print(message)
   for x in UDP_IP:
-    print("send to: " + x)
     try:
       sock.sendto(message.encode(), (x, UDP_PORT))   #encode string; the Message.encode part is where we put the message
     except:
@@ -28,9 +27,3 @@ while True:
   count = (count + 1) % 3
   if(count == 0):
     UDP_IP = os.environ['ips'].split()
-  if(os.environ['send'] != ""):
-    try:
-      sock.sendto(os.environ['send'].split()[1].encode(), (os.environ['send'].split()[1], UDP_PORT))
-    except:
-      print("Reactive message sending by ip failure")
-    os.environ['send'] = ""

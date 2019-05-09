@@ -21,8 +21,6 @@ UDP_IP = update_ip_list()
 UDP_PORT = 5005
 id = 'arbiter'
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
 os.environ['ip_list_full'] = str(UDP_IP)
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -40,12 +38,11 @@ while True:
       except:
         os.environ[x] = 'fail 0'
     else:
-      switch(status[0]):
-        case 'appliance':
+      if(status[0] == 'appliance'):
           appliances.append(status[1])
-        case 'smart_meter':
+      elif(status[0] == 'smart_meter'):
           smart_meters.append(status[1])
-        case 'device':
+      elif(status[0] == 'device'):
           devices.append(status[1])
-  
+
   time.sleep(5)
