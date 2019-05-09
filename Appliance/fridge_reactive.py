@@ -15,6 +15,7 @@ send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 while True:
   data, addr = sock.recvfrom(1024)  #let's pretend the format is: [type], [request], [information list]
+  ip_addr = re.search("\d+\.\d+\.\d+\.\d+", str(addr)).group(0)
   components = data.split()
   #some kind of verification of the arbiter
   if(components[0] == 'arbiter'):
@@ -34,6 +35,6 @@ while True:
           os.environ['ips'] = new_ips
       elif(components[1] == 'who'):
           try:
-            send_sock.sendto(id.encode(), (str(addr), UDP_PORT))
+            send_sock.sendto(id.encode(), (str(ip_addr), UDP_PORT))
           except:
-            print('Error in sending message to ' + str(addr))
+            print('Error in sending message to ' + str(ip_addr))

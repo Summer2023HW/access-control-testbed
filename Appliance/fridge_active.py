@@ -5,6 +5,7 @@ import subprocess
 import re
 import os
 
+os.environ['ips'] = ""
 UDP_IP = os.environ['ips'].split()
 UDP_PORT = 5005
 id = 'appliance'
