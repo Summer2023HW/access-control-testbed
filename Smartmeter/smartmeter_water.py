@@ -1,31 +1,60 @@
 import socket
-import time
-import random
-import subprocess
+import _thread
 import re
 
-UDP_IP = "0.0.0.0"
-UDP_PORT = 5005
+electric = 0
+TCP_PORT = 5005
+
 id = 'smart_meter'
-type = 'electric'
-int total_consumption = 0
+type = 'water'
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock.bind((UDP_IP, UDP_PORT))
+def make_receptive (ip_address):
+  try:
+    new_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    new_sock.bind((ip_address, TCP_PORT))
+    new_sock.listen(1)
+    print("Successfully bound to socket at ip: " + ip_address)
+  except:
+    print("Failure to bind socket to ip: " + ip_address)
+  while True:
+    data = new_sock.recvfrom(1024).decode().split()
+    print("Received Message from " + new_sock.getsockname() + ": " + str(data))
+    if(authorize(data[0])):
+      val = re.search("w:\d+", str(components[1]))
+      val = val.split("w:")[0]
+      electric += int(val)
+    print("Total Electric Count: " + electric)
 
-send_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+def respond_device (socket)
+  socket.send(str(water).encode())
+  socket.close()
+
+def authorize(auth):
+  return True
+
+def authenticate():
+  return "auth"
+
+try:
+  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  sock.bind(('', TCP_PORT))
+  sock.listen(12)
+  print("Successful binding of local socket")
+except:
+  print("Failure to bind local socket")
 
 while True:
-  data, addr = sock.recvfrom(1024)
-  components = data.split()
-  #verification
-  if(components[0] == 'appliance'):
-    val = re.search("w:\d+", str(components[1]))
-    val = val.split("w:")[0]
-    total_consumption += int(val)
-  elif(components[0] == 'device'):
-    #verify
-    send_socket.sendto(str(total_consumption).encode(), (addr, UDP_PORT))
-  elif(components[0] == 'arbiter'):
-    #verify
-    send_socket.sendto(id.encode(), (addr, UDP_PORT))
+  conn, address = sock.accept()
+  info = conn.recvfrom(1024).decode().split()
+  print("Received Message: " + str(info))
+  if(authorize(info[0])):
+    if(info[1] == "arbiter"):
+      if(info[2] == "who"):
+        conn.send((authenticate() + " " + id + " " + type).encode())
+        conn.close()
+      elif(info[2] == "new_ip"):
+        conn.send()
+        _thread.start_new_thread(make_receptive(info[3],))
+        conn.close()
+    elif(info[1] == "device"):
+      respond_device(conn)
