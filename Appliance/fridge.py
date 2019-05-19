@@ -28,7 +28,7 @@ def listen (sock):
         make_connection(info[3])
     conn.close()
   else:
-    conn.send(b"Failed Authorization, Disconnecting")\
+    conn.send(b"Failed Authorization, Disconnecting")
     conn.shutdown(socket.SHUT_RDWR)
     conn.close()
 

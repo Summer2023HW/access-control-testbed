@@ -9,10 +9,7 @@ TCP_PORT = 5005
 id = 'device'
 type = 'home'
 
-def listen(ip_address):
-  conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-  conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-  conn.connect((ip_address, TCP_PORT))
+def listen(conn):
   while True:
     info, addr = conn.recvfrom(1024)
     if(authorize(info.decode()[0])):
@@ -42,11 +39,11 @@ while True:
     else:
       print("Valid Network Key, Authorization Granted")
       auth = info.decode()[1]
-      _thread.start_new_thread()
+      _thread.start_new_thread(listen, (sock,))
   else:
-    statement = "Available SmartMeters: "
+    statement = "Available SmartMeters:"
     for con in smartmeters:
-      statement += "'" + con[0] + "'"
+      statement += " '" + con[0] + "'"
     print(statement)
     choice = input("Which SmartMeter would you like to query?")
     select = False
