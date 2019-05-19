@@ -4,8 +4,12 @@ import re
 TCP_IP = input("ip: ")     #ip of receiving machine
 TCP_PORT = 5005
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect((TCP_IP, TCP_PORT))
+try:
+  sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  sock.connect((TCP_IP, TCP_PORT))
+  print("Successful connection to target ip")
+except:
+  print("Failed to connect to target ip")
 
 Message = input("message: ")       #just grabs command line input
 

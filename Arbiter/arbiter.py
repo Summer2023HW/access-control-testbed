@@ -22,7 +22,7 @@ class Connection:
     self.socket.connect((self.in_ip, TCP_PORT))
     self.socket.send("auth arbiter who")
     data = self.socket.recvfrom(1024).decode().split()
-    
+
   def method(self):
     return id
 

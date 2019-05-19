@@ -5,6 +5,7 @@ TCP_IP = '' #ip of the receiving machine
 TCP_PORT = 5005
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind((TCP_IP, TCP_PORT))
 sock.listen(6)  #up to 6 active cions
 

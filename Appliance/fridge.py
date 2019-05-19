@@ -10,24 +10,26 @@ TCP_PORT = 5005
 id = 'appliance'
 type = 'fridge'
 
-def listen (socket):
-  conn, address = socket.accept()
+def listen (sock):
+  conn, address = sock.accept()
+  conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
   info = conn.recv(1024).decode().split()
   print("Received Message: " + str(info))
   if(authorize(info[0])):
     if(info[1] == "arbiter"):
       if(info[2] == "who"):
         conn.send((authenticate() + " " + id + " " + type).encode())
-        conn.shutdown()
+        conn.shutdown(socket.SHUT_RDWR)
         conn.close()
       elif(info[2] == "new_ip"):
         conn.send(b"Received, Disconnecting")
-        conn.shutdown()
+        conn.shutdown(socket.SHUT_RDWR)
         conn.close()
         make_connection(info[3])
     conn.close()
   else:
-    conn.send(b"Failed Authorization, Disconnecting")
+    conn.send(b"Failed Authorization, Disconnecting")\
+    conn.shutdown(socket.SHUT_RDWR)
     conn.close()
 
 def authorize(info):
@@ -38,17 +40,19 @@ def authenticate():
 
 def make_connection(ip_address):
   new_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  new_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
   try:
     new_sock.connect((ip_address, TCP_PORT))
     print("Successful connection to ip: " + ip_address)
     LIVE_CONNECTIONS.append(new_sock)
   except:
-    new_sock.shutdown()
+    new_sock.shutdown(socket.SHUT_RDWR)
     new_sock.close()
     print("Failure to connect to ip: " + ip_address)
 
 try:
   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+  sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
   sock.bind(('', TCP_PORT))
   sock.listen(12)
   print("Successful binding of local socket")
@@ -68,7 +72,7 @@ while True:
       print("  Live: " + str(con.getsockname()))
     except:
       print("  Dead (Removed): " + str(con.getsockname()))
-      con.shutdown()
+      con.shutdown(socket.SHUT_RDWR)
       con.close()
       LIVE_CONNECTIONS.remove(con)
   time.sleep(5)
