@@ -23,7 +23,7 @@ while True:
     tin = input("ip: ")     #ip of receiving machine
     if(tin == "close"):
         break
-    if(len(re.findall("\d+\.\d+\.\d+\.\d+", tin)) < 1):
+    if(len(re.findall("\d+\.\d+\.\d+\.\d+", tin)) == 1):
         TCP_IP = tin
     else:
         print("Invalid ip, resorting to previous ip")
