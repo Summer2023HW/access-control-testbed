@@ -4,11 +4,14 @@ import re
 import random
 import _thread
 
+''' List of tuples (ip_address, socket) representing live connections to other entities in the network '''
 LIVE_CONNECTIONS = []
+''' Default port to connect to '''
 TCP_PORT = 5005
-
-id = 'appliance'
-type = 'fridge'
+''' Type of this entity in the network '''
+type = 'appliance'
+''' Specific id of this entity, specifying its nature '''
+id = 'fridge'
 
 '''
 Main function that is called after all functions are defined; top-down code structure is preferred.
@@ -61,27 +64,18 @@ def process(sock):
     print("Received Message: " + str(info) + " from: " + str(addr))
     if(authorize(info[0])):
       if(info[1] == "who"):
-        send(sock, authenticate() + " " + id + " " + type)
+        send(sock, authenticate() + " " + type + " " + id)
       elif(info[1] == "new_ip"):
         send(sock, "Received")
-        make_connection(info[2:])
+        for ip in info[2:]:
+          new_sock = make_socket()
+          if(connect_socket(new_sock, ip) and sum([1 for x in LIVE_CONNECTIONS if x[0] == ip_address]) < 1):
+            LIVE_CONNECTIONS.append((ip, new_sock,))
     else:
       send(sock, "Failed Authorization, Disconnecting")
       close_socket(sock);
 
 #-------  Generic Below  ----------------------------------------------------------------------
-
-'''
-Establish a connection to a given ip_address and store the created socket object in LIVE_CONNECTIONS
-'''
-
-def make_connection(ip_address):
-  for ip in ip_address:
-    new_sock = make_socket()
-    if(connect_socket(new_sock, ip) and sum([1 for x in LIVE_CONNECTIONS if x[0] == ip_address]) < 1):
-      LIVE_CONNECTIONS.append((ip, new_sock,))
-    else:
-      close_socket(new_sock)
 
 '''
 Manage the creation of a socket; setting initial values
