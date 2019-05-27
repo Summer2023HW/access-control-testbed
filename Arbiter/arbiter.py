@@ -139,6 +139,7 @@ class Connection:
     send(self.sock, authenticate() + " who")
     data, addr = self.sock.recvfrom(1024)
     data = data.decode().split()
+    print("Received message: " + str(data) + " from: " + str(addr))
     auth = data[0]
     target_type = data[1]
     target_id = data[2]
