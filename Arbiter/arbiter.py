@@ -36,7 +36,12 @@ def main():
         _thread.start_new_thread(new_connection, (x,))
     print("Managing existing connections: ")
     for dev_type in types:
+      print("Type: " + dev_type)
       for conn in connections[types.index(dev_type)]:
+        try:
+          print("ip: " + conn.sock.getpeername())
+        except:
+          print("ip: ?")
         if(dev_type == "appliance"):
           send = update_list(conn, "smartmeter")
           conn.send_new_ip(send)
@@ -107,7 +112,7 @@ class Connection:
   ''' List of ip addresses that this entity is in contact with (as instructed by the Arbiter)'''
   contacts = []
   ''' Socket object that manages the connection to the entity that this Connection represents'''
-  socket = None
+  sock = None
 
   '''
   Method to establish a Connection object based on given ip address; 'open' method
@@ -124,11 +129,11 @@ class Connection:
   '''
 
   def open(self):
-    self.socket = make_socket()
-    if(not connect_socket(self.socket, self.ip, TCP_PORT)):
+    self.sock = make_socket()
+    if(not connect_socket(self.sock, self.ip, TCP_PORT)):
       return False
-    send(self.socket, authenticate() + " who")
-    data, addr = self.socket.recvfrom(1024)
+    send(self.sock, authenticate() + " who")
+    data, addr = self.sock.recvfrom(1024)
     data = data.decode().split()
     auth = data[0]
     target_type = data[1]
@@ -138,7 +143,7 @@ class Connection:
       self.type = target_type
       return True
     else:
-      close_socket(self.socket)
+      close_socket(self.sock)
       return False
 
   '''
@@ -152,7 +157,7 @@ class Connection:
     message = authenticate() + " new_ip"
     for ip in ips:
       message += " " + ip
-    if(send(self.socket, message)):
+    if(send(self.sock, message)):
       self.contacts += ips
 
 main()
