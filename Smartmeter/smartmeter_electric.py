@@ -1,18 +1,18 @@
-import socket
 import _thread
-import re
+import socket
 import sys
+import re
 sys.path.insert(0, "../Library")
 from access import *
 
 ''' Value representing total consumed electricity as recorded by this SmartMeter '''
 electric = 0
-''' Default port to connect to '''
-TCP_PORT = 5005
 ''' Type of this entity in the network '''
 type = 'smart_meter'
 ''' Specific id of this entity, specifying its nature '''
 id = 'electric'
+''' Default port to connect to '''
+TCP_PORT = 5005
 
 '''
 Main function that is called after all functions are defined; binds listening socket and responds to received messages.

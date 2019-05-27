@@ -33,7 +33,7 @@ def bind_socket(sock, ip, num_connections, tcp_port):
   try:
     sock.bind((ip, tcp_port))
     sock.listen(num_connections)
-    print("Successful binding of socket to: " + sock.getpeername())
+    print("Successful binding of socket to: " + sock.gethostname())
     return True
   except:
     print("Failure to bind local socket to: " + ip)
