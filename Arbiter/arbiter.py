@@ -28,9 +28,11 @@ def main():
   sock = make_socket()
   bind_socket(sock, '', 24, TCP_PORT)
   while True:
+    print("Establishing new connections: ")
     for x in scan_network():
       if(x not in live_ip):
         _thread.start_new_thread(new_connection, (x,))
+    print("Managing existing connections: ")
     for dev_type in types:
       for conn in connections[types.index(dev_type)]:
         if(dev_type == "appliance"):
@@ -51,7 +53,7 @@ Returns a list of Strings
 '''
 
 def scan_network():
-  #subprocess.Popen(['./ping_network.sh'], stdout=subprocess.PIPE).communicate()
+  subprocess.Popen(['./ping_network.sh'], stdout=subprocess.PIPE).communicate()
   raw_ip = subprocess.Popen(['arp','-a'], stdout=subprocess.PIPE).communicate()
   expression = '\d+\.\d+\.\d+\.\d+'
   return re.findall(expression, str(raw_ip))
