@@ -1,4 +1,5 @@
 import socket
+import sys
 
 '''
 Manage the creation of a socket; setting initial values
