@@ -38,6 +38,8 @@ def main():
     for dev_type in types:
       print("Type: " + dev_type)
       for conn in connections[types.index(dev_type)]:
+        if(not conn.ready):
+          continue
         try:
           print("ip: " + conn.sock.getpeername())
         except:
@@ -113,6 +115,8 @@ class Connection:
   contacts = []
   ''' Socket object that manages the connection to the entity that this Connection represents'''
   sock = None
+  '''   '''
+  ready = False
 
   '''
   Method to establish a Connection object based on given ip address; 'open' method
@@ -141,6 +145,7 @@ class Connection:
     if(authorize(auth)):
       self.id = target_id
       self.type = target_type
+      self.ready = True
       return True
     else:
       close_socket(self.sock)
