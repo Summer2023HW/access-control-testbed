@@ -31,7 +31,7 @@ def main():
   while True:
     numWat = random.randint(0, 50)
     numElec = random.randint(0, 100)
-    message = "w:" + str(numWat) + " e:" + str(numElec)
+    message = authenticate() + " w:" + str(numWat) + " e:" + str(numElec)
     print("Sending message: '" + message + "' to ips:")
     for hold in LIVE_CONNECTIONS:
       conn = hold[1]
