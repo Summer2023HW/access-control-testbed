@@ -19,69 +19,6 @@ type = "arbiter"
 TCP_PORT = 5005
 
 '''
-Class representing an established connection to an entity in the network that
-the Arbiter has jurisdiction over
-'''
-
-class Connection:
-  ''' Type of entity this Connection reaches to '''
-  type = ""
-  ''' Specific id of the entity that this Connection reaches to '''
-  id = ""
-  ''' ip address of the entity that this Connection reaches to '''
-  ip = ""
-  ''' List of ip addresses that this entity is in contact with (as instructed by the Arbiter)'''
-  contacts = []
-  ''' Socket object that manages the connection to the entity that this Connection represents'''
-  socket = None
-
-  '''
-  Method to establish a Connection object based on given ip address; 'open' method
-  completes the initialization by making contact to the entity at that ip.
-  '''
-
-  def __init__(self, in_ip):
-    self.ip = in_ip
-
-  '''
-  Method to make contact to the entity associated to the given ip address, maintain
-  a connection to it and establish what kind of entity it is in the network.
-  Returns a Boolean
-  '''
-
-  def open(self):
-    self.socket = make_socket()
-    if(not connect_socket(self.socket, self.ip, TCP_PORT)):
-      return False
-    send(self.socket, authenticate() + " who")
-    data, addr = self.socket.recvfrom(1024)
-    data = data.decode().split()
-    auth = data[0]
-    target_type = data[1]
-    target_id = data[2]
-    if(authorize(auth)):
-      self.id = target_id
-      self.type = target_type
-      return True
-    else:
-      close_socket(self.socket)
-      return False
-
-  '''
-  Method to handle sending a list of ip addresses to the connected network entity to be
-  added to their list of contacts.
-  '''
-
-  def send_new_ip(self, ips):
-    if(ips == []):
-      return
-    message = authenticate() + " new_ip"
-    for ip in ips:
-      message += " " + ip
-    if(send(self.socket, message)):
-      self.contacts += ips
-
-'''
 Main method that is called after all functions are defined; top-down code structure is preferred.
 Periodically scans the network and establishes contact to all ips, authorizing them as certain
 kinds of entities and disseminating information accordingly.
@@ -151,5 +88,68 @@ def update_list(conn, type):
   return send
 
 #----------------------------------------------------------------------------------------------
+
+'''
+Class representing an established connection to an entity in the network that
+the Arbiter has jurisdiction over
+'''
+
+class Connection:
+  ''' Type of entity this Connection reaches to '''
+  type = ""
+  ''' Specific id of the entity that this Connection reaches to '''
+  id = ""
+  ''' ip address of the entity that this Connection reaches to '''
+  ip = ""
+  ''' List of ip addresses that this entity is in contact with (as instructed by the Arbiter)'''
+  contacts = []
+  ''' Socket object that manages the connection to the entity that this Connection represents'''
+  socket = None
+
+  '''
+  Method to establish a Connection object based on given ip address; 'open' method
+  completes the initialization by making contact to the entity at that ip.
+  '''
+
+  def __init__(self, in_ip):
+    self.ip = in_ip
+
+  '''
+  Method to make contact to the entity associated to the given ip address, maintain
+  a connection to it and establish what kind of entity it is in the network.
+  Returns a Boolean
+  '''
+
+  def open(self):
+    self.socket = make_socket()
+    if(not connect_socket(self.socket, self.ip, TCP_PORT)):
+      return False
+    send(self.socket, authenticate() + " who")
+    data, addr = self.socket.recvfrom(1024)
+    data = data.decode().split()
+    auth = data[0]
+    target_type = data[1]
+    target_id = data[2]
+    if(authorize(auth)):
+      self.id = target_id
+      self.type = target_type
+      return True
+    else:
+      close_socket(self.socket)
+      return False
+
+  '''
+  Method to handle sending a list of ip addresses to the connected network entity to be
+  added to their list of contacts.
+  '''
+
+  def send_new_ip(self, ips):
+    if(ips == []):
+      return
+    message = authenticate() + " new_ip"
+    for ip in ips:
+      message += " " + ip
+    if(send(self.socket, message)):
+      self.contacts += ips
 
 main()
