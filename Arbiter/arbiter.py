@@ -76,10 +76,10 @@ def new_connection(ip):
   conn = Connection(ip)
   if(conn.open()):
     live_ip.append(ip)
-    if(conn.id not in types):
-      types.append(conn.id)
+    if(conn.type not in types):
+      types.append(conn.type)
       connections.append([])
-    connections[types.index(conn.id)].append(conn)
+    connections[types.index(conn.type)].append(conn)
     print("Succesfully established connection to: " + ip)
   else:
     print("Failed to establish connection to: " + ip)
