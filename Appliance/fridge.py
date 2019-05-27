@@ -136,6 +136,7 @@ Returns Boolean
 def send(sock, message):
   try:
     sock.send(message.encode())
+    print("Sent message: ''" + message + "' to: " + str(sock))
     return True
   except:
     print("Failure to send message via socket at ip: " + str(re.findall("\d+\.\d+\.\d+\.\d+", str(sock))))

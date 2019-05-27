@@ -2,6 +2,7 @@ import socket
 import re
 import subprocess
 import time
+import _thread
 
 ''' List of entity types in the network; i.e., Appliance/SmartMeter/etc.. Dynamically grown. '''
 types = []
@@ -55,7 +56,7 @@ class Connection:
     auth = data[0]
     target_type = data[1]
     target_id = data[2]
-    if(authenticate(auth)):
+    if(authorize(auth)):
       self.id = target_id
       self.type = target_type
       return True
