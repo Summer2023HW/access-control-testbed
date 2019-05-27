@@ -7,12 +7,12 @@ from access import *
 
 ''' Value representing total consumed water as recorded by this SmartMeter '''
 water = 0
-''' Default port to connect to '''
-TCP_PORT = 5005
 ''' Type of this entity in the network '''
 type = 'smart_meter'
 ''' Specific id of this entity, specifying its nature '''
 id = 'water'
+''' Default port to connect to '''
+TCP_PORT = 5005
 
 '''
 Main function that is called after all functions are defined; binds listening socket and responds to received messages.

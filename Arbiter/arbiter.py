@@ -45,13 +45,13 @@ def main():
         except:
           print("ip: ?")
         if(dev_type == "appliance"):
-          send = update_list(conn, "smartmeter")
+          send = update_list(conn, "smart_meter")
           conn.send_new_ip(send)
-        elif(dev_type == "smartmeter"):
+        elif(dev_type == "smart_meter"):
           send = update_list(conn, "appliance")
           conn.send_new_ip(send)
         elif(dev_type == "device"):
-          send = update_list(conn, "smartmeter")
+          send = update_list(conn, "smart_meter")
           conn.send_new_ip(send)
     time.sleep(2)
 
