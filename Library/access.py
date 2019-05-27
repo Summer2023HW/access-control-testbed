@@ -18,9 +18,9 @@ def close_socket(sock):
   try:
     sock.shutdown(socket.SHUT_RDWR)
     sock.close()
-  except err:
+  except:
     print("--Error in Socket Closing - Potentially non-fatal--")
-    print(err)
+    print(sys.exc_info()[0])
 
 '''
 Manage the binding of a socket to listen to a defined ip address ('' for universal) at a default port with
@@ -34,9 +34,9 @@ def bind_socket(sock, ip, num_connections, tcp_port):
     sock.listen(num_connections)
     print("Successful binding of socket to: " + ip)
     return True
-  except err:
+  except:
     print("Failure to bind local socket to: " + ip)
-    print(err)
+    print(sys.exc_info()[0])
     return False
 
 '''
@@ -49,9 +49,9 @@ def connect_socket(sock, ip, tcp_port):
     sock.connect((ip, tcp_port))
     print("Successful connection to ip: " + ip)
     return True
-  except err:
+  except:
     print("Failure to connect to ip: " + ip)
-    print(err)
+    print(sys.exc_info()[0])
     return False
 
 '''
@@ -64,9 +64,9 @@ def send(sock, message):
     sock.send(message.encode())
     print("Sent message: '" + message + "' to: " + str(sock))
     return True
-  except err:
+  except:
     print("Failure to send message via socket at ip: " + str(re.findall("\d+\.\d+\.\d+\.\d+", str(sock))))
-    print(err)
+    print(sys.exc_info()[0])
     return False
 
 '''
