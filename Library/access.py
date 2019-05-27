@@ -37,7 +37,7 @@ def bind_socket(sock, ip, num_connections, tcp_port):
     print("Successful binding of socket to: " + str(sock.getsockname()))
     return True
   except:
-    if(re.search("Address already in use", sys.exc_info()[1]) != None):
+    if(re.search("Address already in use", str(sys.exc_info()[1])) != None):
       return bind_socket(sock, ip, num_connections, tcp_port + 1)
     print("Failure to bind local socket to: " + ip)
     print(sys.exc_info())
