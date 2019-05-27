@@ -33,7 +33,7 @@ def bind_socket(sock, ip, num_connections, tcp_port):
   try:
     sock.bind((ip, tcp_port))
     sock.listen(num_connections)
-    print("Successful binding of socket to: " + sock.gethostname())
+    print("Successful binding of socket to: " + sock.getsockname())
     return True
   except:
     print("Failure to bind local socket to: " + ip)
@@ -51,7 +51,7 @@ def connect_socket(sock, ip, tcp_port):
     print("Successful connection to: " + sock.getpeername())
     return True
   except:
-    print("Failure to connect to: " + ip)
+    print("Failure to connect to: " + ip + " from: " + sock.getsockname())
     print(sys.exc_info())
     return False
 
@@ -63,10 +63,10 @@ Returns Boolean
 def send(sock, message):
   try:
     sock.send(message.encode())
-    print("Sent message: '" + message + "' to: " + str(sock.getpeername()))
+    print("Sent message: '" + message + "' to: " + sock.getpeername())
     return True
   except:
-    print("Failure to send message from: " + str(sock.gethostname()))
+    print("Failure to send message from: " + sock.getsockname())
     print(sys.exc_info())
     return False
 
