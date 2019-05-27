@@ -22,7 +22,7 @@ Main function that is called after all functions are defined; top-down code stru
 
 def main():
   sock = make_socket()
-  if(not bind_socket(sock, '', 12)):
+  if(not bind_socket(sock, '', 12, TCP_PORT)):
     print("Failure to bind local socket, program shutting down.")
     return
 
@@ -72,13 +72,11 @@ def process(sock):
         send(sock, "Received")
         for ip in info[2:]:
           new_sock = make_socket()
-          if(connect_socket(new_sock, ip) and sum([1 for x in LIVE_CONNECTIONS if x[0] == ip_address]) < 1):
+          if(connect_socket(new_sock, ip, TCP_PORT) and sum([1 for x in LIVE_CONNECTIONS if x[0] == ip_address]) < 1):
             LIVE_CONNECTIONS.append((ip, new_sock,))
     else:
       send(sock, "Failed Authorization, Disconnecting")
       close_socket(sock);
-
-#-------  Generic Below  ----------------------------------------------------------------------
 
 #----------------------------------------------------------------------------------------------
 

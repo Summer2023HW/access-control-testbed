@@ -20,7 +20,7 @@ Main function that is called after all functions are defined; binds listening so
 
 def main():
   sock = make_socket()
-  bind_socket(sock, '', 12)
+  bind_socket(sock, '', 12, TCP_PORT)
 
   while True:
     conn, address = sock.accept()
@@ -49,7 +49,7 @@ Given an ip, sets up socket to be responsive and react to expected input from th
 
 def listen (ip_address):
   new_sock = make_socket()
-  if(not connect_socket(new_sock, ip_address)):
+  if(not connect_socket(new_sock, ip_address, TCP_PORT)):
     return
   while True:
     data, addr = new_sock.recvfrom(1024)

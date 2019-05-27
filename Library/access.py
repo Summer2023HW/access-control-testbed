@@ -27,9 +27,9 @@ a specified number of live connections on that socket permitted.
 Returns Boolean
 '''
 
-def bind_socket(sock, ip, num_connections):
+def bind_socket(sock, ip, num_connections, port):
   try:
-    sock.bind((ip, TCP_PORT))
+    sock.bind((ip, port))
     sock.listen(num_connections)
     print("Successful binding of socket to: " + ip)
     return True
@@ -42,9 +42,9 @@ Manage the connecting of a socket to a defined ip address and default port
 Returns Boolean
 '''
 
-def connect_socket(sock, ip):
+def connect_socket(sock, ip, port):
   try:
-    sock.connect((ip, TCP_PORT))
+    sock.connect((ip, port))
     print("Successful connection to ip: " + ip)
     return True
   except:

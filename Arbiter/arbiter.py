@@ -51,7 +51,7 @@ class Connection:
 
   def open(self):
     self.socket = make_socket()
-    if(not connect_socket(self.socket, self.ip)):
+    if(not connect_socket(self.socket, self.ip, TCP_PORT)):
       return False
     send(self.socket, authenticate() + " who")
     data, addr = self.socket.recvfrom(1024)
@@ -89,7 +89,7 @@ kinds of entities and disseminating information accordingly.
 
 def main():
   sock = make_socket()
-  bind_socket(sock, '', 24)
+  bind_socket(sock, '', 24, TCP_PORT)
   while True:
     for x in scan_network():
       if(x not in live_ip):

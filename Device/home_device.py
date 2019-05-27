@@ -18,7 +18,7 @@ id = 'home'
 
 def main():
   sock = make_socket()
-  connect_socket(sock, TCP_IP)
+  connect_socket(sock, TCP_IP, TCP_PORT)
 
   while True:
     if(auth == None):
@@ -57,7 +57,7 @@ def listen(conn):
     info = info.decode().split()
     if(authorize(info[0])):
       new_sock = make_socket()
-      connect_socket(new_sock, info[2])
+      connect_socket(new_sock, info[2], TCP_PORT)
       new_sock.connect((info[2], TCP_PORT))
       smartmeters.append((info[1], new_sock,))
 
