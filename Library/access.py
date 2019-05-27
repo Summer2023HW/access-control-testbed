@@ -21,7 +21,7 @@ def close_socket(sock):
     sock.close()
   except:
     print("--Error in Socket Closing - Potentially non-fatal--")
-    print(sys.exc_info()[0])
+    print(sys.exc_info())
 
 '''
 Manage the binding of a socket to listen to a defined ip address ('' for universal) at a default port with
@@ -37,7 +37,7 @@ def bind_socket(sock, ip, num_connections, tcp_port):
     return True
   except:
     print("Failure to bind local socket to: " + ip)
-    print(sys.exc_info()[0])
+    print(sys.exc_info())
     return False
 
 '''
@@ -52,7 +52,7 @@ def connect_socket(sock, ip, tcp_port):
     return True
   except:
     print("Failure to connect to ip: " + ip)
-    print(sys.exc_info()[0])
+    print(sys.exc_info())
     return False
 
 '''
@@ -67,7 +67,7 @@ def send(sock, message):
     return True
   except:
     print("Failure to send message via socket at ip: " + str(re.findall("\d+\.\d+\.\d+\.\d+", str(sock))))
-    print(sys.exc_info()[0])
+    print(sys.exc_info())
     return False
 
 '''
