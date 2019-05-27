@@ -27,9 +27,9 @@ a specified number of live connections on that socket permitted.
 Returns Boolean
 '''
 
-def bind_socket(sock, ip, num_connections, port):
+def bind_socket(sock, ip, num_connections, tcp_port):
   try:
-    sock.bind((ip, port))
+    sock.bind((ip, tcp_port))
     sock.listen(num_connections)
     print("Successful binding of socket to: " + ip)
     return True
@@ -42,9 +42,9 @@ Manage the connecting of a socket to a defined ip address and default port
 Returns Boolean
 '''
 
-def connect_socket(sock, ip, port):
+def connect_socket(sock, ip, tcp_port):
   try:
-    sock.connect((ip, port))
+    sock.connect((ip, tcp_port))
     print("Successful connection to ip: " + ip)
     return True
   except:
@@ -59,6 +59,7 @@ Returns Boolean
 def send(sock, message):
   try:
     sock.send(message.encode())
+    print("Sent message: '" + message + "' to: " + str(sock))
     return True
   except:
     print("Failure to send message via socket at ip: " + str(re.findall("\d+\.\d+\.\d+\.\d+", str(sock))))
