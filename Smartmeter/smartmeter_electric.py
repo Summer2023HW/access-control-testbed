@@ -20,7 +20,9 @@ Main function that is called after all functions are defined; binds listening so
 
 def main():
   sock = make_socket()
-  bind_socket(sock, '', 12, TCP_PORT)
+  if(not bind_socket(sock, '', 12, TCP_PORT)):
+    print("Failure to bind local socket, program shutting down.")
+    return
 
   while True:
     conn, address = sock.accept()
