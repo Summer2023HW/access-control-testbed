@@ -60,7 +60,7 @@ Given input that affects stored value of the smart_meter, processes it
 def process(data):
   global electric
   if(authorize(data[0])):
-    val = str(re.search("w:\d+", str(data)).group(0))
+    val = str(re.search("e:\d+", str(data)).group(0))
     val = str(re.search("\d+", val).group(0))
     electric += int(val)
   print("Total Electric Count: " + str(electric))
