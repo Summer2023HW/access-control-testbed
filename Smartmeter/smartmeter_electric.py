@@ -53,7 +53,7 @@ def listen (new_sock):
     data = data.decode().split()
     print("Received Message: " + str(data) + " from " + str(addr))
     if(authorize(data[0])):
-      val = re.search("e:\d+", str(components))
+      val = re.search("e:\d+", str(data))
       val = val.split("e:")[0]
       electric += int(val)
     print("Total Electric Count: " + electric)
