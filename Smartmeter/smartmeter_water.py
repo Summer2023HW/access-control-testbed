@@ -31,7 +31,10 @@ def main():
     info = info.decode().split()
     if(len(info) < 1):
       continue
-    print("Received Message: " + str(info) + " from " + str(addr))
+    try:
+      print("Received Message: " + str(info) + " from: " + str(conn.getpeername()))
+    except:
+      print("Received Message: " + str(info) + " from: ?" + )
     if(authorize(info[0])):
       if(info[1] == "who"):
         send(conn, authenticate() + " " + type + " " + id)

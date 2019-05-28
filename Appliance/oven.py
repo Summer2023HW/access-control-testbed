@@ -68,6 +68,11 @@ def process(sock):
     if(authorize(info[0])):
       if(info[1] == "who"):
         send(sock, authenticate() + " " + type + " " + id)
+      elif(indo[1] == "contact"):
+        list_conn = ""
+        for x in LIVE_CONNECTIONS:
+          list_conn = " " + x[0]
+        send(sock, authenticate() + " " + list_conn)
       elif(info[1] == "new_ip"):
         send(sock, "Received")
         for ip in info[2:]:
