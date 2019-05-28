@@ -10,7 +10,7 @@ from access import *
 ''' List of entity types in the network; i.e., Appliance/SmartMeter/etc.. Dynamically grown. '''
 types = ['smart_meter', 'appliance', 'arbiter', 'device']
 ''' List of Connection objects representing entities in the network that have live connections '''
-connections = []
+connections = [[],[],[],[]]
 ''' List of Strings representing what ips have been contacted and connected to thus far '''
 live_ip = []
 ''' Type of this entity in the network '''
@@ -28,7 +28,7 @@ def main():
   sock = make_socket()
   bind_socket(sock, '', 24, TCP_PORT)
   print("Updating arp cache via bash script ping_network.sh...")
-  subprocess.Popen(['./ping_network.sh'], stdout=subprocess.PIPE).communicate()
+  #subprocess.Popen(['./ping_network.sh'], stdout=subprocess.PIPE).communicate()
   while True:
     print("Establishing new connections: ")
     for x in scan_network():
