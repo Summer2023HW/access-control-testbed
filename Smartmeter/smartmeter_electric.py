@@ -58,7 +58,7 @@ def listen (new_sock, first):
 Given input that affects stored value of the smart_meter, processes it
 '''
 
-def process(input):
+def process(data):
   if(authorize(data[0])):
     val = str(re.search("w:\d+", str(data)).group(0))
     val = str(re.search("\d+", val).group(0))
