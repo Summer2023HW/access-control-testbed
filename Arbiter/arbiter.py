@@ -8,7 +8,7 @@ sys.path.insert(0, "../Library")
 from access import *
 
 ''' List of entity types in the network; i.e., Appliance/SmartMeter/etc.. Dynamically grown. '''
-types = []
+types = ['smart_meter', 'appliance', 'arbiter', 'device']
 ''' List of Connection objects representing entities in the network that have live connections '''
 connections = []
 ''' List of Strings representing what ips have been contacted and connected to thus far '''

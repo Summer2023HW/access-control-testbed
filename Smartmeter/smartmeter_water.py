@@ -58,7 +58,7 @@ def listen (ip_address):
     data = data.decode().split()
     print("Received Message: " + str(data) + " from " + str(addr))
     if(authorize(data[0])):
-      val = re.search("w:\d+", str(components[1]))
+      val = re.search("w:\d+", str(components))
       val = val.split("w:")[0]
       water += int(val)
     print("Total Water Count: " + water)

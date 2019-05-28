@@ -58,7 +58,7 @@ def listen (ip_address):
     data = data.decode().split()
     print("Received Message: " + str(data) + " from " + str(addr))
     if(authorize(data[0])):
-      val = re.search("e:\d+", str(components[1]))
+      val = re.search("e:\d+", str(components))
       val = val.split("e:")[0]
       electric += int(val)
     print("Total Electric Count: " + electric)
