@@ -179,11 +179,11 @@ class Connection:
   '''
 
   def update_contacts(self,):
-    self.contacts = []
     send(self.sock, authenticate() + " contact")
     data = receive(self.sock)
     if(data == None):
-      continue
+      return  
+    self.contacts = []
     if(authorize(data[0])):
       for x in data[1:]:
         self.contacts.append(x)
