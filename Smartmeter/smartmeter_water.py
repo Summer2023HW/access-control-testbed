@@ -36,7 +36,7 @@ def main():
       elif(info[1] == "request"):
         respond_status(conn)
       elif(info[1] == "give"):
-        _thread.start_new_thread(listen, (conn,))
+        _thread.start_new_thread(listen, (conn, info,))
     else:
       send(conn, "Failed Authorization, Disconnecting")
       close_socket(conn)
@@ -45,17 +45,25 @@ def main():
 Given an ip, sets up socket to be responsive and react to expected input from that source
 '''
 
-def listen (new_sock):
+def listen (new_sock, first):
   global water
+  process(first)
   while True:
     data = receive(new_sock)
     if(data == None):
       continue
-    if(authorize(data[0])):
-      val = str(re.search("w:\d+", str(data)).group(0))
-      val = str(re.search("\d+", val).group(0))
-      water += int(val)
-    print("Total Water Count: " + str(water))
+    process(data)
+
+'''
+Given input that affects stored value of the smart_meter, processes it
+'''
+
+def process(input):
+  if(authorize(data[0])):
+    val = str(re.search("w:\d+", str(data)).group(0))
+    val = str(re.search("\d+", val).group(0))
+    water += int(val)
+  print("Total Water Count: " + str(water))
 
 '''
 Upon request, inform the caller of the status of this Smart Meter
