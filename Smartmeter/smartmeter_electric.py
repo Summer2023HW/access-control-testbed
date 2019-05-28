@@ -46,7 +46,6 @@ Given an ip, sets up socket to be responsive and react to expected input from th
 '''
 
 def listen (new_sock, first):
-  global electric
   process(first)
   while True:
     data = receive(new_sock)
@@ -59,11 +58,12 @@ Given input that affects stored value of the smart_meter, processes it
 '''
 
 def process(data):
+  global electric
   if(authorize(data[0])):
     val = str(re.search("w:\d+", str(data)).group(0))
     val = str(re.search("\d+", val).group(0))
-    water += int(val)
-  print("Total Water Count: " + str(water))
+    electric += int(val)
+  print("Total Electric Count: " + str(electric))
 
 '''
 Upon request, inform the caller of the status of this Smart Meter
