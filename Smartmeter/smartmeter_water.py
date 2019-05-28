@@ -54,8 +54,8 @@ def listen (new_sock):
     data = data.decode().split()
     print("Received Message: " + str(data) + " from " + str(addr))
     if(authorize(data[0])):
-      val = str(re.search("w:\d+", str(data)))
-      val = val.split("w:")[0]
+      val = str(re.search("w:\d+", str(data)).group(0))
+      val = str(re.search("\d+", val).group(0))
       water += int(val)
     print("Total Water Count: " + water)
 
