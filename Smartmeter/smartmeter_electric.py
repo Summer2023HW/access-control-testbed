@@ -32,20 +32,29 @@ def main():
       continue
     if(authorize(info[0])):
       if(info[1] == "who"):
-        send(conn, authenticate() + " " + type + " " + id)
+        _thread.start_new_thread(listen_arbiter, (conn,))
       elif(info[1] == "request"):
         respond_status(conn)
       elif(info[1] == "give"):
-        _thread.start_new_thread(listen, (conn, info,))
+        _thread.start_new_thread(listen_appliance, (conn, info,))
     else:
       send(conn, "Failed Authorization, Disconnecting")
       close_socket(conn)
 
 '''
+Given a socket to the arbiter, keep it open for further transmission
+'''
+
+def listen_arbiter (new_sock):
+  send(new_sock, authenticate() + " " + type + " " + id)
+  while True:
+    info = receive(new_sock)
+
+'''
 Given an ip, sets up socket to be responsive and react to expected input from that source
 '''
 
-def listen (new_sock, first):
+def listen_appliance (new_sock, first):
   process(first)
   while True:
     data = receive(new_sock)
