@@ -53,7 +53,7 @@ def listen_arbiter (new_sock):
       continue
     if(authorize(info[0])):
       if(info[1] == "contact"):
-        send(new_sock, "")
+        send(new_sock, authenticate())
 
 '''
 Given a socket to an appliance, deal with its messages
