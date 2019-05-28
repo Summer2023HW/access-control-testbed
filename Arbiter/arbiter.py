@@ -55,6 +55,7 @@ def main():
     count = (count + 1) % 10
     if(count == 0):
       print("Updating arp cache via bash script ping_network.sh...")
+      dead_ip = []
       subprocess.Popen(['./ping_network.sh'], stdout=subprocess.PIPE).communicate()
       for dev_type in types:
         for conn in connections[types.index(dev_type)]:
@@ -182,7 +183,7 @@ class Connection:
     send(self.sock, authenticate() + " contact")
     data = receive(self.sock)
     if(data == None):
-      return  
+      return
     self.contacts = []
     if(authorize(data[0])):
       for x in data[1:]:
