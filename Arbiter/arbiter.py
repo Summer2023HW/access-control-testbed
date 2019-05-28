@@ -144,9 +144,9 @@ class Connection:
     if(not connect_socket(self.sock, self.ip, TCP_PORT)):
       return False
     send(self.sock, authenticate() + " who")
-    data, addr = self.sock.recvfrom(1024)
-    data = data.decode().split()
-    print("Received message: " + str(data) + " from: " + str(addr))
+    data = receive(self.sock)
+    if(data == None):
+      return False
     auth = data[0]
     target_type = data[1]
     target_id = data[2]
@@ -181,8 +181,9 @@ class Connection:
   def update_contacts(self,):
     self.contacts = []
     send(self.sock, authenticate() + " contact")
-    data, addr = self.sock.recvfrom(1024)
-    data = data.decode().split()
+    data = receive(self.sock)
+    if(data == None):
+      continue
     if(authorize(data[0])):
       for x in data[1:]:
         self.contacts.append(x)

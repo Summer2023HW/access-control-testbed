@@ -74,6 +74,23 @@ def send(sock, message):
     return False
 
 '''
+Manage the receiving/listening for data input from a connected socket
+Returns a List of Strings
+'''
+
+def receive(sock):
+    data, addr = sock.recvfrom(1024)
+    data = data.decode().split()
+    if(len(data) < 1):
+      return None
+    try:
+      print("Received Message: " + str(data) + " from: " + str(sock.getpeername()))
+    except:
+      print("Received Message: " + str(data) + " from: ?")
+    return data
+
+
+'''
 Authorize authentification key received from a message
 Returns Boolean
 '''

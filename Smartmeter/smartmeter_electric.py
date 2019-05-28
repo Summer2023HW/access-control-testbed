@@ -27,14 +27,9 @@ def main():
   while True:
     conn, address = sock.accept()
     conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    info, addr = conn.recvfrom(1024)
-    info = info.decode().split()
-    if(len(info) < 1):
+    info = receive(conn)
+    if(info == None):
       continue
-    try:
-      print("Received Message: " + str(info) + " from: " + str(conn.getpeername()))
-    except:
-      print("Received Message: " + str(info) + " from: ?")
     if(authorize(info[0])):
       if(info[1] == "who"):
         send(conn, authenticate() + " " + type + " " + id)
@@ -53,9 +48,9 @@ Given an ip, sets up socket to be responsive and react to expected input from th
 def listen (new_sock):
   global electric
   while True:
-    data, addr = new_sock.recvfrom(1024)
-    data = data.decode().split()
-    print("Received Message: " + str(data) + " from " + str(addr))
+    data = receive(new_sock)
+    if(data == None):
+      continue
     if(authorize(data[0])):
       val = str(re.search("e:\d+", str(data)).group(0))
       val = str(re.search("\d+", val).group(0))

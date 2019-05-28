@@ -60,19 +60,17 @@ Defines the response to incoming messages once a connection has been established
 
 def process(sock):
   while True:
-    info, addr = sock.recvfrom(1024)
-    info = info.decode().split()
-    if(len(info) < 1):
+    info = receive(sock)
+    if(info == None):
       continue
-    print("Received Message: " + str(info) + " from: " + str(addr))
     if(authorize(info[0])):
       if(info[1] == "who"):
         send(sock, authenticate() + " " + type + " " + id)
       elif(info[1] == "contact"):
-        list_conn = ""
+        list_conn = authenticate()
         for x in LIVE_CONNECTIONS:
-          list_conn = " " + x[0]
-        send(sock, authenticate() + " " + list_conn)
+          list_conn += " " + x[0]
+        send(sock, list_conn)
       elif(info[1] == "new_ip"):
         send(sock, "Received")
         for ip in info[2:]:
