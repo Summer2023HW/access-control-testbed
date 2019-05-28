@@ -57,7 +57,7 @@ def listen (new_sock):
       val = str(re.search("w:\d+", str(data)).group(0))
       val = str(re.search("\d+", val).group(0))
       water += int(val)
-    print("Total Water Count: " + water)
+    print("Total Water Count: " + str(water))
 
 '''
 Upon request, inform the caller of the status of this Smart Meter

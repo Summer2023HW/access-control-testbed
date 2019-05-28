@@ -57,7 +57,7 @@ def listen (new_sock):
       val = str(re.search("e:\d+", str(data)).group(0))
       val = str(re.search("\d+", val).group(0))
       electric += int(val)
-    print("Total Electric Count: " + electric)
+    print("Total Electric Count: " + str(electric))
 
 '''
 Upon request, inform the caller of the status of this Smart Meter
