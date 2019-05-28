@@ -68,7 +68,7 @@ def process(sock):
     if(authorize(info[0])):
       if(info[1] == "who"):
         send(sock, authenticate() + " " + type + " " + id)
-      elif(indo[1] == "contact"):
+      elif(info[1] == "contact"):
         list_conn = ""
         for x in LIVE_CONNECTIONS:
           list_conn = " " + x[0]
