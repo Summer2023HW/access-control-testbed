@@ -49,7 +49,7 @@ def listen_arbiter (new_sock):
   send(new_sock, authenticate() + " " + type + " " + id)
   while True:
     info = receive(new_sock)
-    if(info == None)
+    if(info == None):
       continue
     if(authorize(info[0])):
       if(info[1] == "contact"):
