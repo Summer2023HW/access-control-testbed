@@ -35,12 +35,10 @@ def main():
     if(authorize(info[0])):
       if(info[1] == "who"):
         send(conn, authenticate() + " " + type + " " + id)
-      elif(info[1] == "new_ip"):
-        send(conn, "Received")
-        for x in info[2:]:
-          _thread.start_new_thread(listen, (x,))
       elif(info[1] == "request"):
         respond_status(conn)
+      elif(info[1] == "give"):
+        _thread.start_new_thread(listen, (conn,))
     else:
       send(conn, "Failed Authorization, Disconnecting")
       close_socket(conn)
@@ -49,10 +47,7 @@ def main():
 Given an ip, sets up socket to be responsive and react to expected input from that source
 '''
 
-def listen (ip_address):
-  new_sock = make_socket()
-  if(not connect_socket(new_sock, ip_address, TCP_PORT)):
-    return
+def listen (new_sock):
   while True:
     data, addr = new_sock.recvfrom(1024)
     data = data.decode().split()

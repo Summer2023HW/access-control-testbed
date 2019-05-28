@@ -13,6 +13,8 @@ types = ['smart_meter', 'appliance', 'arbiter', 'device']
 connections = [[],[],[],[]]
 ''' List of Strings representing what ips have been contacted and connected to thus far '''
 live_ip = []
+'''  List of Strings representing what ips have been contacted and failed to reach '''
+dead_ip = []
 ''' Type of this entity in the network '''
 type = "arbiter"
 ''' Default port to connect to '''
@@ -27,12 +29,11 @@ kinds of entities and disseminating information accordingly.
 def main():
   sock = make_socket()
   bind_socket(sock, '', 24, TCP_PORT)
-  print("Updating arp cache via bash script ping_network.sh...")
-  #subprocess.Popen(['./ping_network.sh'], stdout=subprocess.PIPE).communicate()
+  count = 0
   while True:
     print("Establishing new connections: ")
     for x in scan_network():
-      if(x not in live_ip):
+      if(x not in live_ip and x not in dead_ip):
         _thread.start_new_thread(new_connection, (x,))
     print("Managing existing connections: ")
     for dev_type in types:
@@ -41,19 +42,20 @@ def main():
         if(not conn.ready):
           continue
         try:
-          print("ip: " + conn.sock.getpeername())
+          print("ip: " + str(conn.sock.getpeername()))
         except:
           print("ip: ?")
         if(dev_type == "appliance"):
           send = update_list(conn, "smart_meter")
           conn.send_new_ip(send)
-        elif(dev_type == "smart_meter"):
-          send = update_list(conn, "appliance")
-          conn.send_new_ip(send)
         elif(dev_type == "device"):
           send = update_list(conn, "smart_meter")
           conn.send_new_ip(send)
     time.sleep(2)
+    count = (count + 1) % 10
+    if(count == 0):
+      print("Updating arp cache via bash script ping_network.sh...")
+      subprocess.Popen(['./ping_network.sh'], stdout=subprocess.PIPE).communicate()
 
 '''
 Method to generate a list of all ip addresses that the Arbiter can detect to query
@@ -82,6 +84,7 @@ def new_connection(ip):
     connections[types.index(conn.type)].append(conn)
     print("Succesfully established connection to: " + ip)
   else:
+    dead_ip.append(ip)
     print("Failed to establish connection to: " + ip)
 
 '''
