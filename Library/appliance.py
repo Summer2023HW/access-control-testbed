@@ -1,9 +1,9 @@
-import socket
-import time
-import re
-import random
 import _thread
+import socket
+import random
+import time
 import sys
+import re
 sys.path.insert(0, "../Library")
 from access import *
 
@@ -17,7 +17,7 @@ type = 'appliance'
 id = 'washing_machine'
 
 '''
-Main function that is called after all functions are defined; top-down code structure is preferred.
+Main function that is called with set values for dynamic functioning; top-down code structure is preferred.
 '''
 
 def start(set_id, val_water, val_electric):

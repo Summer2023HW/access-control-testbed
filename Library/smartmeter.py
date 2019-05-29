@@ -15,7 +15,7 @@ id = ''
 TCP_PORT = 5005
 
 '''
-Main function that is called after all functions are defined; binds listening socket and responds to received messages.
+Main function that is called with set values for dynamic functioning; binds listening socket and responds to received messages.
 '''
 
 def start(set_id):
