@@ -20,7 +20,9 @@ id = 'washing_machine'
 Main function that is called after all functions are defined; top-down code structure is preferred.
 '''
 
-def main():
+def start(set_id, val_water, val_electric):
+  global id
+  id = set_id
   sock = make_socket()
   if(not bind_socket(sock, '', 12, TCP_PORT)):
     print("Failure to bind local socket, program shutting down.")
@@ -29,8 +31,8 @@ def main():
   _thread.start_new_thread(listen, (sock,))
 
   while True:
-    numWat = random.randint(0, 150)
-    numElec = random.randint(0, 100)
+    numWat = random.randint(0, val_water)
+    numElec = random.randint(0, val_electric)
     message = authenticate() + " give " + "w:" + str(numWat) + " e:" + str(numElec)
     print("Sending message: '" + message + "' to ips:")
     for hold in LIVE_CONNECTIONS:
@@ -80,7 +82,3 @@ def process(sock):
     else:
       send(sock, "Failed Authorization, Disconnecting")
       close_socket(sock);
-
-#----------------------------------------------------------------------------------------------
-
-main()
