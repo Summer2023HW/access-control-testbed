@@ -14,7 +14,7 @@ TCP_PORT = 5005
 ''' Type of this entity in the network '''
 type = 'appliance'
 ''' Specific id of this entity, specifying its nature '''
-id = 'washing_machine'
+id = ''
 
 '''
 Main function that is called with set values for dynamic functioning; top-down code structure is preferred.
