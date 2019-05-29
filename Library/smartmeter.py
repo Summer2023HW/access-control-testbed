@@ -74,9 +74,9 @@ Given input that affects stored value of the smart_meter, processes it
 '''
 
 def process(data):
-  global stored
+  global stored, id
   if(authorize(data[0])):
-    val = str(re.search(type[0] + ":\d+", str(data)).group(0))
+    val = str(re.search(id[0] + ":\d+", str(data)).group(0))
     val = str(re.search("\d+", val).group(0))
     stored += int(val)
   print("Total " + type + " Count: " + str(stored))
