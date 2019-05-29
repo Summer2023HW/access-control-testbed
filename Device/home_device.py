@@ -23,8 +23,9 @@ def main():
   while True:
     if(auth == None):
       send(sock, key + " " + id + " " + type)
-      info, addr = sock.recvfrom(1024)
-      info = info.decode().split()
+      info = receive(sock)
+      if(info == None):
+        continue
       if(info[0] != "Authorized"):
         print("Invalid Network Key")
         key = input("Network Key: ")
@@ -53,12 +54,12 @@ def main():
 
 def listen(conn):
   while True:
-    info, addr = conn.recvfrom(1024)
-    info = info.decode().split()
+    info = receive(conn)
+    if(info == None):
+      continue
     if(authorize(info[0])):
       new_sock = make_socket()
       connect_socket(new_sock, info[2], TCP_PORT)
-      new_sock.connect((info[2], TCP_PORT))
       smartmeters.append((info[1], new_sock,))
 
 #----------------------------------------------------------------------------------------------
