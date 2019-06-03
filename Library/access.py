@@ -1,6 +1,15 @@
+import hashlib
 import socket
 import sys
 import re
+from Crypto import Random
+import Crypto.Cipher.AES as AES
+from Crypto.PublicKey import RSA
+
+random = Random.new().read
+RSAkey = RSA.generate(1024, random)
+home = "0.0.0.0"
+communication_list = {home : RSAkey.publickey().exportKey()}
 
 '''
 Manage the creation of a socket; setting initial values
@@ -24,6 +33,9 @@ def close_socket(sock):
     print("--Error in Socket Closing - Potentially non-fatal--")
     print(sys.exc_info())
 
+def handshake(sock, ip):
+  send(sock, communication_list[home])
+
 '''
 Manage the binding of a socket to listen to a defined ip address ('' for universal) at a default port with
 a specified number of live connections on that socket permitted.
@@ -34,7 +46,9 @@ def bind_socket(sock, ip, num_connections, tcp_port):
   try:
     sock.bind((ip, tcp_port))
     sock.listen(num_connections)
-    print("Successful binding of socket to: " + str(sock.getsockname()))
+    if(ip != home):
+      handshake(sock, ip)
+    print("Successful binding of socket to: " + str(sock.getsockname()[0]))
     return True
   except:
     if(re.search("Address already in use", str(sys.exc_info()[1])) != None):
@@ -51,10 +65,11 @@ Returns Boolean
 def connect_socket(sock, ip, tcp_port):
   try:
     sock.connect((ip, tcp_port))
-    print("Successful connection to: " + str(sock.getpeername()))
+    handshake(sock, ip)
+    print("Successful connection to: " + str(sock.getpeername()[0]))
     return True
   except:
-    print("Failure to connect to: " + ip + " from: " + str(sock.getsockname()))
+    print("Failure to connect to: " + ip + " from: " + str(sock.getsockname()[0]))
     print(sys.exc_info())
     return False
 
@@ -66,10 +81,10 @@ Returns Boolean
 def send(sock, message):
   try:
     sock.send(message.encode())
-    print("Sent message: '" + message + "' to: " + str(sock.getpeername()))
+    print("Sent message: '" + message + "' to: " + str(sock.getpeername()[0]))
     return True
   except:
-    print("Failure to send message from: " + str(sock.getsockname()))
+    print("Failure to send message from: " + str(sock.getsockname()[0]))
     print(sys.exc_info())
     return False
 
@@ -84,7 +99,7 @@ def receive(sock):
     if(len(data) < 1):
       return None
     try:
-      print("Received Message: " + str(data) + " from: " + str(sock.getpeername()))
+      print("Received Message: " + str(data) + " from: " + str(sock.getpeername()[0]))
     except:
       print("Received Message: " + str(data) + " from: ?")
     return data
@@ -105,3 +120,12 @@ Returns String
 
 def authenticate():
   return "auth"
+
+def add_connection(ip, giv_key):
+    communication_list[ip] = giv_key
+
+def remove_padding(s):
+  return s.replace("`", "")
+
+def padding(s):
+  return s + ((16 - len(s) % 16) * "`")
