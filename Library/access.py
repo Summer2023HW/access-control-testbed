@@ -2,14 +2,8 @@ import hashlib
 import socket
 import sys
 import re
-from Crypto import Random
-import Crypto.Cipher.AES as AES
-from Crypto.PublicKey import RSA
 
-random = Random.new().read
-RSAkey = RSA.generate(1024, random)
-home = "0.0.0.0"
-communication_list = {home : RSAkey.publickey().exportKey()}
+communication_list = {}
 
 '''
 Manage the creation of a socket; setting initial values
@@ -33,9 +27,6 @@ def close_socket(sock):
     print("--Error in Socket Closing - Potentially non-fatal--")
     print(sys.exc_info())
 
-def handshake(sock, ip):
-  send(sock, communication_list[home])
-
 '''
 Manage the binding of a socket to listen to a defined ip address ('' for universal) at a default port with
 a specified number of live connections on that socket permitted.
@@ -46,8 +37,6 @@ def bind_socket(sock, ip, num_connections, tcp_port):
   try:
     sock.bind((ip, tcp_port))
     sock.listen(num_connections)
-    if(ip != home):
-      handshake(sock, ip)
     print("Successful binding of socket to: " + str(sock.getsockname()[0]))
     return True
   except:
@@ -121,11 +110,9 @@ Returns String
 def authenticate():
   return "auth"
 
-def add_connection(ip, giv_key):
-    communication_list[ip] = giv_key
+'''
 
-def remove_padding(s):
-  return s.replace("`", "")
+'''
 
-def padding(s):
-  return s + ((16 - len(s) % 16) * "`")
+def set_key(ip, key):
+  communication_list[ip] = key

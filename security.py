@@ -5,6 +5,8 @@ key = Fernet.generate_key()
 f = Fernet(key)
 mes = b"My secret message"
 token = f.encrypt(mes)
+print(key)
+print(f)
 print(mes)
 print(token)
 print(f.decrypt(token))
