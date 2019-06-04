@@ -170,7 +170,7 @@ class Connection:
     self.sock = make_socket()
     if(not connect_socket(self.sock, self.ip, TCP_PORT)):
       return False
-    send(self.sock, authenticate() + " who " + shared_key)
+    send(self.sock, authenticate() + " who " + str(shared_key))
     data = receive(self.sock)
     if(data == None):
       return False
