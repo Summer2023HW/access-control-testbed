@@ -91,7 +91,7 @@ def process(sock):
           info[2],
           password=None,
           backend=default_backend()
-        )
+        ))
         send(sock, authenticate() + " " + type + " " + id + " " + private_key.public_key())
       elif(info[1] == "symmetric"):
         set_symmetric_key(sock.getpeername(), Fernet(info[2]))
