@@ -107,7 +107,7 @@ def receive(sock):
     data, addr = sock.recvfrom(1024)
     data = data.decode()
     if(not authentication(data.split()[0])):
-      elif(sock.getpeername()[0] in communication_list_symmetric):
+      if(sock.getpeername()[0] in communication_list_symmetric):
         data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
       else:
         data = communication_list_asymmetric[home].decrypt(
