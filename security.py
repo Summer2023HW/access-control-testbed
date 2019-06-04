@@ -47,7 +47,7 @@ priv = private_key.private_bytes(
   format=serialization.PrivateFormat.PKCS8,
   encryption_algorithm=serialization.NoEncryption()
 )
-publ = public_key.public_key(
+publ = public_key.public_bytes(
   encoding=serialization.Encoding.PEM,
   format=serialization.PublicFormat.SubjectPublicKeyInfo
 )
