@@ -33,7 +33,7 @@ public_key = private_key.public_key()
 shared_key = public_key.public_bytes(
   encoding=serialization.Encoding.PEM,
   format=serialization.PublicFormat.SubjectPublicKeyInfo
-)
+).decode()
 
 '''
 Main function that is called with set values for dynamic functioning; top-down code structure is preferred.

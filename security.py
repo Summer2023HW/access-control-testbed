@@ -58,3 +58,9 @@ print(publ)
 print(mes)
 print(ciphertext)
 print(plaintext)
+
+print("Rebuilding Keys from Bytes:")
+
+re_key = serialization.load_pem_public_key(
+
+)
