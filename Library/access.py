@@ -62,7 +62,6 @@ Returns Boolean
 def connect_socket(sock, ip, tcp_port):
   try:
     sock.connect((ip, tcp_port))
-    handshake(sock, ip)
     print("Successful connection to: " + str(sock.getpeername()[0]))
     return True
   except:
@@ -107,17 +106,18 @@ Returns a List of Strings
 def receive(sock):
     data, addr = sock.recvfrom(1024)
     data = data.decode()
-    if(sock.getpeername()[0] in communication_list_symmetric):
-      data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
-    else:
-      data = communication_list_asymmetric[home].decrypt(
-        data,
-        padding.OAEP(
-          mgf=padding.MGF1(algorithm=hashes.SHA256()),
-          algorithm=hashes.SHA256(),
-          label=None
+    if(not authentication(data.split()[0])):
+      elif(sock.getpeername()[0] in communication_list_symmetric):
+        data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
+      else:
+        data = communication_list_asymmetric[home].decrypt(
+          data,
+          padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+          )
         )
-      )
 
     data = data.split()
     if(len(data) < 1):
