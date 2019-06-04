@@ -106,7 +106,7 @@ Returns a List of Strings
 def receive(sock):
     data, addr = sock.recvfrom(1024)
     data = data.decode()
-    if(len(data.split) < 1 or not authorize(data.split()[0])):
+    if(len(data.split()) < 1 or not authorize(data.split()[0])):
       if(sock.getpeername()[0] in communication_list_symmetric):
         data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
       else:
