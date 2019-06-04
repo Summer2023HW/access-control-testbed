@@ -89,7 +89,6 @@ def process(sock):
       if(info[1] == "who"):
         set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
           info[2],
-          password=None,
           backend=default_backend()
         ))
         send(sock, authenticate() + " " + type + " " + id + " " + shared_key)

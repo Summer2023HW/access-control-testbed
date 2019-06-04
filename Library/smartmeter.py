@@ -69,7 +69,6 @@ Given a socket to the arbiter, keep it open for further transmission
 def listen_arbiter (new_sock, info):
   set_asymmetric_key(new_sock.getpeername()[0], serialization.load_pem_public_key(
       info[2],
-      password=None,
       backend=default_backend()
     ))
   send(new_sock, authenticate() + " " + type + " " + id + " " + shared_key)
