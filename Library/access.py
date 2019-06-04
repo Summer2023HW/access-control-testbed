@@ -74,7 +74,7 @@ def send(sock, message):
     to_send = message
     if(sock.getpeername()[0] in communication_list_symmetric):
       to_send = communication_list_symmetric[sock.getpeername()[0]].encrypt(to_send)
-    elif(sock.getpeername()[0] in communication_list_asymmetric:
+    elif(sock.getpeername()[0] in communication_list_asymmetric):
       to_send = communication_list_asymmetric[sock.getpeername()[0]].encrypt(
         to_send,
         padding.OAEP(
