@@ -71,7 +71,21 @@ Returns Boolean
 
 def send(sock, message):
   try:
-    sock.send(message.encode())
+    to_send = message
+    if(communication_list_symmetric[sock.getpeername()[0]] != None):
+      to_send = communication_list_symmetric[sock.getpeername()[0]].encrypt(to_send)
+    elif(communication_list_asymmetric[sock.getpeername()[0]] != None):
+      to_send = communication_list_asymmetric[sock.getpeername()[0]].encrypt(
+        to_send,
+        padding.OAEP(
+          mgf=padding.MGF1(algorithm=hashes.SHA256()),
+          algorithm=hashes.SHA256(),
+          label=None
+        )
+      )
+    else:
+      print("No key found for ip: " + sock.getpeername()[0] + ", potentially non-fatal.")
+    sock.send(to_send.encode())
     print("Sent message: '" + message + "' to: " + str(sock.getpeername()[0]))
     return True
   except:
@@ -86,7 +100,20 @@ Returns a List of Strings
 
 def receive(sock):
     data, addr = sock.recvfrom(1024)
-    data = data.decode().split()
+    data = data.decode()
+    if(communication_list_symmetric[sock.getpeername()[0]] != None):
+      data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
+    else:
+      data = communication_list_asymmetric[home].decrypt(
+        data,
+        padding.OAEP(
+          mgf=padding.MGF1(algorithm=hashes.SHA256()),
+          algorithm=hashes.SHA256(),
+          label=None
+        )
+      )
+
+    data = data.split()
     if(len(data) < 1):
       return None
     try:

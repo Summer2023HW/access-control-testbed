@@ -3,6 +3,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
+from cryptography.fernet import Fernet
 import subprocess
 import _thread
 import socket
@@ -123,7 +124,7 @@ def update_list(conn, type):
   send = []
   for app in connections[types.index(type)]:
     if(app.ip not in conn.contacts):
-      send.append(app.ip)
+      send.append(app.ip + "," + app.symmetric_key)
   return send
 
 #----------------------------------------------------------------------------------------------
@@ -146,6 +147,10 @@ class Connection:
   sock = None
   '''   '''
   ready = False
+  ''' '''
+  public_key = ""
+  ''' '''
+  symmetric_key = ""
 
   '''
   Method to establish a Connection object based on given ip address; 'open' method
@@ -172,10 +177,19 @@ class Connection:
     auth = data[0]
     target_type = data[1]
     target_id = data[2]
+    target_public_key = data[3]
     if(authorize(auth)):
       self.id = target_id
       self.type = target_type
       self.ready = True
+      self.public_key = serialization.load_pem_public_key(
+        data[3],
+        password=None,
+        backend=default_backend()
+      )
+      self.symmetric_key = Fernet.generate_key()
+      send(self.sock, authenticate() + " symmetric " + self.symmetric_key)
+      set_symmetric_key(self.sock.getpeername()[0], Fernet(self.symmetric_key))
       return True
     else:
       close_socket(self.sock)

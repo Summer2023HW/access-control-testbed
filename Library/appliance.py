@@ -3,6 +3,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
+from cryptography.fernet import Fernet
 import _thread
 import socket
 import random
@@ -41,7 +42,7 @@ Main function that is called with set values for dynamic functioning; top-down c
 def start(set_id, val_water, val_electric):
   global id
   id = set_id
-  set_key("0.0.0.0", private_key)
+  set_asymmetric_key("0.0.0.0", private_key)
   sock = make_socket()
   if(not bind_socket(sock, '', 12, TCP_PORT)):
     print("Failure to bind local socket, program shutting down.")
@@ -86,8 +87,14 @@ def process(sock):
       continue
     if(authorize(info[0])):
       if(info[1] == "who"):
-        set_key(sock.getpeername()[0], info[2])
+        set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
+          info[2],
+          password=None,
+          backend=default_backend()
+        )
         send(sock, authenticate() + " " + type + " " + id + " " + private_key.public_key())
+      elif(info[1] == "symmetric"):
+        set_symmetric_key(sock.getpeername(), Fernet(info[2]))
       elif(info[1] == "contact"):
         list_conn = authenticate()
         for x in LIVE_CONNECTIONS:
@@ -96,8 +103,10 @@ def process(sock):
       elif(info[1] == "new_ip"):
         send(sock, "Received")
         for ip in info[2:]:
+          ip_key = ip.split(",")
           new_sock = make_socket()
-          if(connect_socket(new_sock, ip, TCP_PORT) and sum([1 for x in LIVE_CONNECTIONS if x[0] == ip]) < 1):
+          if(connect_socket(new_sock, ip_key[0], TCP_PORT) and sum([1 for x in LIVE_CONNECTIONS if x[0] == ip_key[0]]) < 1):
+            set_symmetric_key(ip_key[0], Fernet(ip_key[1]))
             LIVE_CONNECTIONS.append((ip, new_sock,))
     else:
       send(sock, "Failed Authorization, Disconnecting")
