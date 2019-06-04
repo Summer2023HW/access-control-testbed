@@ -72,9 +72,9 @@ Returns Boolean
 def send(sock, message):
   try:
     to_send = message
-    if(communication_list_symmetric[sock.getpeername()[0]] != None):
+    if(sock.getpeername()[0] in communication_list_symmetric):
       to_send = communication_list_symmetric[sock.getpeername()[0]].encrypt(to_send)
-    elif(communication_list_asymmetric[sock.getpeername()[0]] != None):
+    elif(sock.getpeername()[0] in communication_list_asymmetric:
       to_send = communication_list_asymmetric[sock.getpeername()[0]].encrypt(
         to_send,
         padding.OAEP(
@@ -101,7 +101,7 @@ Returns a List of Strings
 def receive(sock):
     data, addr = sock.recvfrom(1024)
     data = data.decode()
-    if(communication_list_symmetric[sock.getpeername()[0]] != None):
+    if(sock.getpeername()[0] in communication_list_symmetric:
       data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
     else:
       data = communication_list_asymmetric[home].decrypt(
