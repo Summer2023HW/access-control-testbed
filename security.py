@@ -41,8 +41,19 @@ plaintext = private_key.decrypt(
     label=None
   )
 )
+priv = private_key.private_bytes(
+  encoding=serialization.Encoding.PEM,
+  format=serialization.PrivateFormat.PKCSB,
+  encryption_algorithm=serialization.NoEncryption()
+)
+publ = public_key.public_key(
+  encoding=serialization.Encoding.PEM,
+  format=serialization.PublicFormat.SubjectPublicKeyInfo
+)
 print(private_key)
+print(priv)
 print(public_key)
+print(publ)
 print(mes)
 print(ciphertext)
 print(plaintext)

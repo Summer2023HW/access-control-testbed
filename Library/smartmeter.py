@@ -1,3 +1,8 @@
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import serialization
 import _thread
 import socket
 import sys
@@ -13,6 +18,19 @@ type = 'smart_meter'
 id = ''
 ''' Default port to connect to '''
 TCP_PORT = 5005
+''' '''
+private_key = rsa.generate_private_key(
+  public_exponent=65537,
+  key_size=2048,
+  backen=default_backend()
+)
+''' '''
+public_key = private_key.public_key()
+''' '''
+shared_key = public_key.public_bytes(
+  encoding=serialization.Encoding.PEM,
+  format=serialization.PublicFormat.SubjectPublicKeyInfo
+)
 
 '''
 Main function that is called with set values for dynamic functioning; binds listening socket and responds to received messages.
@@ -48,7 +66,7 @@ Given a socket to the arbiter, keep it open for further transmission
 '''
 
 def listen_arbiter (new_sock):
-  send(new_sock, authenticate() + " " + type + " " + id)
+  send(new_sock, authenticate() + " " + type + " " + id + " " + private_key.public_key())
   while True:
     info = receive(new_sock)
     if(info == None):

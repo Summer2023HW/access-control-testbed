@@ -1,3 +1,8 @@
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import serialization
 import _thread
 import socket
 import random
@@ -15,6 +20,19 @@ TCP_PORT = 5005
 type = 'appliance'
 ''' Specific id of this entity, specifying its nature '''
 id = ''
+''' '''
+private_key = rsa.generate_private_key(
+  public_exponent=65537,
+  key_size=2048,
+  backen=default_backend()
+)
+''' '''
+public_key = private_key.public_key()
+''' '''
+shared_key = public_key.public_bytes(
+  encoding=serialization.Encoding.PEM,
+  format=serialization.PublicFormat.SubjectPublicKeyInfo
+)
 
 '''
 Main function that is called with set values for dynamic functioning; top-down code structure is preferred.
@@ -23,6 +41,7 @@ Main function that is called with set values for dynamic functioning; top-down c
 def start(set_id, val_water, val_electric):
   global id
   id = set_id
+  set_key("0.0.0.0", private_key)
   sock = make_socket()
   if(not bind_socket(sock, '', 12, TCP_PORT)):
     print("Failure to bind local socket, program shutting down.")
@@ -67,7 +86,8 @@ def process(sock):
       continue
     if(authorize(info[0])):
       if(info[1] == "who"):
-        send(sock, authenticate() + " " + type + " " + id)
+        set_key(sock.getpeername()[0], info[2])
+        send(sock, authenticate() + " " + type + " " + id + " " + private_key.public_key())
       elif(info[1] == "contact"):
         list_conn = authenticate()
         for x in LIVE_CONNECTIONS:

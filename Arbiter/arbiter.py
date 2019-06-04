@@ -1,3 +1,8 @@
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import serialization
 import subprocess
 import _thread
 import socket
@@ -19,6 +24,20 @@ dead_ip = []
 type = "arbiter"
 ''' Default port to connect to '''
 TCP_PORT = 5005
+''' '''
+private_key = rsa.generate_private_key(
+  public_exponent=65537,
+  key_size=2048,
+  backen=default_backend()
+)
+''' '''
+public_key = private_key.public_key()
+''' '''
+shared_key = public_key.public_bytes(
+  encoding=serialization.Encoding.PEM,
+  format=serialization.PublicFormat.SubjectPublicKeyInfo
+)
+
 
 '''
 Main method that is called after all functions are defined; top-down code structure is preferred.
@@ -28,6 +47,7 @@ kinds of entities and disseminating information accordingly.
 
 def main():
   global dead_ip
+  set_asymmetric_key("0.0.0.0", private_key)
   sock = make_socket()
   bind_socket(sock, '', 24, TCP_PORT)
   count = 0
@@ -145,7 +165,7 @@ class Connection:
     self.sock = make_socket()
     if(not connect_socket(self.sock, self.ip, TCP_PORT)):
       return False
-    send(self.sock, authenticate() + " who")
+    send(self.sock, authenticate() + " who " + shared_key)
     data = receive(self.sock)
     if(data == None):
       return False

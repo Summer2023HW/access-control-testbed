@@ -3,7 +3,9 @@ import socket
 import sys
 import re
 
-communication_list = {}
+home = "0.0.0.0"
+communication_list_symmetric = {}
+communication_list_asymmetric = {}
 
 '''
 Manage the creation of a socket; setting initial values
@@ -114,5 +116,12 @@ def authenticate():
 
 '''
 
-def set_key(ip, key):
-  communication_list[ip] = key
+def set_symmetric_key(ip, key):
+  communication_list_symmetric[ip] = key
+
+'''
+
+'''
+
+def set_asymmetric_key(ip, key):
+  communication_list_asymmetric[ip] = key
