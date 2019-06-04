@@ -92,7 +92,7 @@ def process(sock):
           password=None,
           backend=default_backend()
         ))
-        send(sock, authenticate() + " " + type + " " + id + " " + private_key.public_key())
+        send(sock, authenticate() + " " + type + " " + id + " " + shared_key)
       elif(info[1] == "symmetric"):
         set_symmetric_key(sock.getpeername(), Fernet(info[2]))
       elif(info[1] == "contact"):

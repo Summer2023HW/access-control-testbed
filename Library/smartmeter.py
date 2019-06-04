@@ -53,7 +53,7 @@ def start(set_id):
       continue
     if(authorize(info[0])):
       if(info[1] == "who"):
-        _thread.start_new_thread(listen_arbiter, (conn,))
+        _thread.start_new_thread(listen_arbiter, (conn, info,))
       elif(info[1] == "request"):
         respond_status(conn)
       elif(info[1] == "give"):
@@ -66,8 +66,13 @@ def start(set_id):
 Given a socket to the arbiter, keep it open for further transmission
 '''
 
-def listen_arbiter (new_sock):
-  send(new_sock, authenticate() + " " + type + " " + id + " " + private_key.public_key())
+def listen_arbiter (new_sock, info):
+    set_asymmetric_key(new_sock.getpeername()[0], serialization.load_pem_public_key(
+      info[2],
+      password=None,
+      backend=default_backend()
+    ))
+  send(new_sock, authenticate() + " " + type + " " + id + " " + shared_key)
   while True:
     info = receive(new_sock)
     if(info == None):
@@ -75,6 +80,8 @@ def listen_arbiter (new_sock):
     if(authorize(info[0])):
       if(info[1] == "contact"):
         send(new_sock, authenticate())
+      elif(info[1] == "symmetric"):
+        set_symmetric_key(sock.getpeername(), Fernet(info[2]))
 
 '''
 Given an ip, sets up socket to be responsive and react to expected input from that source
