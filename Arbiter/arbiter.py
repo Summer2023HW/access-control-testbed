@@ -59,12 +59,12 @@ def main():
         _thread.start_new_thread(new_connection, (x,))
     print("Managing existing connections: ")
     for dev_type in types:
-      print("Type:" + access.split_term + dev_type)
+      print("Type:" + split_term + dev_type)
       for conn in connections[types.index(dev_type)]:
         if(not conn.ready):
           continue
         try:
-          print("ip:" + access.split_term + str(conn.sock.getpeername()))
+          print("ip:" + split_term + str(conn.sock.getpeername()))
         except:
           print("ip: ?")
         if(dev_type == "appliance"):
@@ -109,10 +109,10 @@ def new_connection(ip):
       types.append(conn.type)
       connections.append([])
     connections[types.index(conn.type)].append(conn)
-    print("Succesfully established connection to:" + access.split_term + ip)
+    print("Succesfully established connection to:" + split_term + ip)
   else:
     dead_ip.append(ip)
-    print("Failed to establish connection to:" + access.split_term + ip)
+    print("Failed to establish connection to:" + split_term + ip)
 
 '''
 Method that checks the existing list of connected device ips against those recorded
@@ -170,7 +170,7 @@ class Connection:
     self.sock = make_socket()
     if(not connect_socket(self.sock, self.ip, TCP_PORT)):
       return False
-    send(self.sock, authenticate() + access.split_term + "who" + access.split_term + str(shared_key))
+    send(self.sock, authenticate() + split_term + "who" + split_term + str(shared_key))
     data = receive(self.sock)
     if(data == None):
       return False
@@ -188,7 +188,7 @@ class Connection:
         backend=default_backend()
       )
       self.symmetric_key = Fernet.generate_key()
-      send(self.sock, authenticate() + access.split_term + "symmetric" + access.split_term + self.symmetric_key)
+      send(self.sock, authenticate() + split_term + "symmetric" + split_term + self.symmetric_key)
       set_symmetric_key(self.sock.getpeername()[0], Fernet(self.symmetric_key))
       return True
     else:
@@ -203,9 +203,9 @@ class Connection:
   def send_new_ip(self, ips):
     if(ips == []):
       return
-    message = authenticate() + access.split_term + "new_ip"
+    message = authenticate() + split_term + "new_ip"
     for ip in ips:
-      message += access.split_term + "" + ip
+      message += split_term + "" + ip
     if(send(self.sock, message)):
       self.contacts += ips
 
@@ -215,7 +215,7 @@ class Connection:
   '''
 
   def update_contacts(self,):
-    send(self.sock, authenticate() + access.split_term + "contact")
+    send(self.sock, authenticate() + split_term + "contact")
     data = receive(self.sock)
     if(data == None):
       return

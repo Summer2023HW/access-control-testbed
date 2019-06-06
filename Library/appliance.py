@@ -56,7 +56,7 @@ def start(set_id, val_water, val_electric):
   while True:
     numWat = random.randint(0, val_water)
     numElec = random.randint(0, val_electric)
-    message = authenticate() + access.split_term + "give" + access.split_term + "w:" + str(numWat) + access.split_term + "e:" + str(numElec)
+    message = authenticate() + split_term + "give" + split_term + "w:" + str(numWat) + split_term + "e:" + str(numElec)
     print("Sending message: '" + message + "' to ips:")
     for hold in LIVE_CONNECTIONS:
       conn = hold[1]
@@ -96,13 +96,13 @@ def process(sock):
           re_key.encode(),
           backend=default_backend()
         ))
-        send(sock, authenticate() + access.split_term +  type + access.split_term +  id + access.split_term +  shared_key)
+        send(sock, authenticate() + split_term +  type + split_term +  id + split_term +  shared_key)
       elif(info[1] == "symmetric"):
         set_symmetric_key(sock.getpeername(), Fernet(info[2]))
       elif(info[1] == "contact"):
         list_conn = authenticate()
         for x in LIVE_CONNECTIONS:
-          list_conn += "" + access.split_term + x[0]
+          list_conn += "" + split_term + x[0]
         send(sock, list_conn)
       elif(info[1] == "new_ip"):
         send(sock, "Received")
