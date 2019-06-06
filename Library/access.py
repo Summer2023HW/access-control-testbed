@@ -13,6 +13,8 @@ home = "0.0.0.0"
 communication_list_symmetric = {}
 communication_list_asymmetric = {}
 
+split_term = "::_::"
+
 '''
 Manage the creation of a socket; setting initial values
 Returns Socket
@@ -106,7 +108,7 @@ Returns a List of Strings
 def receive(sock):
     data, addr = sock.recvfrom(1024)
     data = data.decode()
-    if(len(data.split()) < 1 or not authorize(data.split()[0])):
+    if(len(data.split(split_term)) < 1 or not authorize(data.split(split_term)[0])):
       if(sock.getpeername()[0] in communication_list_symmetric):
         data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
       else:
@@ -119,7 +121,7 @@ def receive(sock):
           )
         )
 
-    data = data.split()
+    data = data.split(split_term)
     if(len(data) < 1):
       return None
     try:

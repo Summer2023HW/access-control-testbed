@@ -71,17 +71,12 @@ Given a socket to the arbiter, keep it open for further transmission
 
 def listen_arbiter (new_sock, info):
   re_key = info[2]
-  print(info)
-  for x in info[3:]:
-    print(x)
-    re_key += " " + x
-  re_key = re_key.encode()
   print(re_key)
   set_asymmetric_key(new_sock.getpeername()[0], serialization.load_pem_public_key(
-      re_key,
+      re_key.encode(),
       backend=default_backend()
     ))
-  send(new_sock, authenticate() + " " + type + " " + id + " " + shared_key)
+  send(new_sock, authenticate() + access.split_term + type + access.split_term + id + access.split_term + shared_key)
   while True:
     info = receive(new_sock)
     if(info == None):
@@ -114,12 +109,12 @@ def process(data):
     val = str(re.search(id[0] + ":\d+", str(data)).group(0))
     val = str(re.search("\d+", val).group(0))
     stored += int(val)
-  print("Total " + id + " Count: " + str(stored))
+  print("Total" + access.split_term +  id  + access.split_term + "Count:" + access.split_term +  str(stored))
 
 '''
 Upon request, inform the caller of the status of this Smart Meter
 '''
 
 def respond_status (sock):
-  send(sock, id + " Usage: " + str(stored))
+  send(sock, id  + access.split_term + "Usage:" + access.split_term + str(stored))
   close_socket(sock)

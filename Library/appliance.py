@@ -56,14 +56,14 @@ def start(set_id, val_water, val_electric):
   while True:
     numWat = random.randint(0, val_water)
     numElec = random.randint(0, val_electric)
-    message = authenticate() + " give " + "w:" + str(numWat) + " e:" + str(numElec)
+    message = authenticate() + access.split_term + "give" + access.split_term + "w:" + str(numWat) + access.split_term + "e:" + str(numElec)
     print("Sending message: '" + message + "' to ips:")
     for hold in LIVE_CONNECTIONS:
       conn = hold[1]
       if(send(conn, message)):
-        print("  Live: " + str(hold[0]))
+        print("  Live:" + str(hold[0]))
       else:
-        print("  Dead (Removed): " + str(hold[0]))
+        print("  Dead (Removed):" + str(hold[0]))
         close_socket(conn)
         LIVE_CONNECTIONS.remove(hold)
     time.sleep(5)
@@ -91,21 +91,18 @@ def process(sock):
     if(authorize(info[0])):
       if(info[1] == "who"):
         re_key = info[2]
-        for x in info[3:]:
-          re_key += " " + x
-        re_key = re_key.encode()
         print(re_key)
         set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
-          re_key,
+          re_key.encode(),
           backend=default_backend()
         ))
-        send(sock, authenticate() + " " + type + " " + id + " " + shared_key)
+        send(sock, authenticate() + access.split_term +  type + access.split_term +  id + access.split_term +  shared_key)
       elif(info[1] == "symmetric"):
         set_symmetric_key(sock.getpeername(), Fernet(info[2]))
       elif(info[1] == "contact"):
         list_conn = authenticate()
         for x in LIVE_CONNECTIONS:
-          list_conn += " " + x[0]
+          list_conn += "" + access.split_term + x[0]
         send(sock, list_conn)
       elif(info[1] == "new_ip"):
         send(sock, "Received")
