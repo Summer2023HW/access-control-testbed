@@ -24,14 +24,14 @@ private_key = rsa.generate_private_key(
   public_exponent=65537,
   key_size=2048,
   backend=default_backend()
-).decode()
+)
 ''' '''
 public_key = private_key.public_key()
 ''' '''
 shared_key = public_key.public_bytes(
   encoding=serialization.Encoding.PEM,
   format=serialization.PublicFormat.SubjectPublicKeyInfo
-)
+).decode()
 
 '''
 Main function that is called with set values for dynamic functioning; binds listening socket and responds to received messages.

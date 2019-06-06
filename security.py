@@ -60,7 +60,15 @@ print(ciphertext)
 print(plaintext)
 
 print("Rebuilding Keys from Bytes:")
+print()
+
+print(publ)
+publ = publ.decode()
+print(publ)
+print(publ.encode())
 
 re_key = serialization.load_pem_public_key(
-
+  publ.encode(),
+  backend=default_backend()
 )
+print(re_key)
