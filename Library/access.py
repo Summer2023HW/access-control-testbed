@@ -80,10 +80,10 @@ def send(sock, message):
   try:
     to_send = message
     if(sock.getpeername()[0] in communication_list_symmetric):
-      to_send = communication_list_symmetric[sock.getpeername()[0]].encrypt(to_send)
+      to_send = communication_list_symmetric[sock.getpeername()[0]].encrypt(to_send.encode())
     elif(sock.getpeername()[0] in communication_list_asymmetric):
       to_send = communication_list_asymmetric[sock.getpeername()[0]].encrypt(
-        to_send,
+        to_send.encode(),
         padding.OAEP(
           mgf=padding.MGF1(algorithm=hashes.SHA256()),
           algorithm=hashes.SHA256(),
