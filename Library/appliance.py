@@ -35,6 +35,9 @@ shared_key = public_key.public_bytes(
   format=serialization.PublicFormat.SubjectPublicKeyInfo
 ).decode()
 
+print("Shared Key:")
+print(shared_key)
+
 '''
 Main function that is called with set values for dynamic functioning; top-down code structure is preferred.
 '''

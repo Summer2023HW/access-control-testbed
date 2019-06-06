@@ -33,6 +33,9 @@ shared_key = public_key.public_bytes(
   format=serialization.PublicFormat.SubjectPublicKeyInfo
 ).decode()
 
+print("Shared Key:")
+print(shared_key)
+
 '''
 Main function that is called with set values for dynamic functioning; binds listening socket and responds to received messages.
 '''
@@ -68,7 +71,7 @@ Given a socket to the arbiter, keep it open for further transmission
 
 def listen_arbiter (new_sock, info):
   set_asymmetric_key(new_sock.getpeername()[0], serialization.load_pem_public_key(
-      info[2] + " " + info[3] + " " + info[4] + " " + info[5] + " " + info[6],
+      (info[2] + " " + info[3] + " " + info[4] + " " + info[5] + " " + info[6]).encode(),
       backend=default_backend()
     ))
   send(new_sock, authenticate() + " " + type + " " + id + " " + shared_key)
