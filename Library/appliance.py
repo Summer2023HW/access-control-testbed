@@ -90,7 +90,10 @@ def process(sock):
       continue
     if(authorize(info[0])):
       if(info[1] == "who"):
-        re_key = (info[2] + " " + info[3] + " " + info[4] + " " + info[5] + " " + info[6]).encode()
+          re_key = info[2]
+          for x in info[3:]:
+            re_key += " " + x
+          re_key = re_key.encode()
         print(re_key)
         set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
           re_key,
