@@ -77,6 +77,7 @@ Returns Boolean
 '''
 
 def send(sock, message):
+  print("Sending message: '" + message + "' to: " + str(sock.getpeername()[0]))
   try:
     to_send = message
     if(sock.getpeername()[0] in communication_list_symmetric):
@@ -93,7 +94,7 @@ def send(sock, message):
     else:
       print("No key found for ip: " + sock.getpeername()[0] + ", potentially non-fatal.")
     sock.send(to_send.encode())
-    print("Sent message: '" + message + "' to: " + str(sock.getpeername()[0]))
+    print("Successfully sent message.")
     return True
   except:
     print("Failure to send message from: " + str(sock.getsockname()[0]))

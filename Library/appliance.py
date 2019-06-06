@@ -24,7 +24,7 @@ id = ''
 ''' '''
 private_key = rsa.generate_private_key(
   public_exponent=65537,
-  key_size=4096,
+  key_size=2048,
   backend=default_backend()
 )
 ''' '''
@@ -34,9 +34,6 @@ shared_key = public_key.public_bytes(
   encoding=serialization.Encoding.PEM,
   format=serialization.PublicFormat.SubjectPublicKeyInfo
 ).decode()
-
-print("Shared Key:")
-print(shared_key)
 
 '''
 Main function that is called with set values for dynamic functioning; top-down code structure is preferred.
@@ -91,7 +88,6 @@ def process(sock):
     if(authorize(info[0])):
       if(info[1] == "who"):
         re_key = info[2]
-        print(re_key)
         set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
           re_key.encode(),
           backend=default_backend()
