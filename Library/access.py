@@ -205,6 +205,7 @@ def handshake_active(sock):
 
 def handshake_responsive(sock, info):
   sock.send((authenticate() + split_term + "key" + split_term + shared_key).encode())
+  info = info.split(split_term)
   print("Key Info: ")
   print(info[2].encode())
   communication_list_asymmetric[sockgetpeername()[0]] = serialization.load_pem_public_key(
