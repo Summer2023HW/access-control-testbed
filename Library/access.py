@@ -123,13 +123,13 @@ Returns a List of Strings
 
 def receive(sock):
     data, addr = sock.recvfrom(1024)
-    data = data.decode()
 
     try:
       print("Received Message: " + str(data) + " from: " + str(sock.getpeername()[0]))
     except:
       print("Received Message: " + str(data) + " from: ?")
 
+    data = data.decode()
 
     if(sock.getpeername()[0] not in communication_list_asymmetric and sock.getpeername()[0] not in communication_list_symmetric):
       handshake_responsive(sock, data)
