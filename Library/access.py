@@ -12,10 +12,11 @@ from cryptography.fernet import Fernet
 home = "0.0.0.0"
 communication_list_symmetric = {}
 communication_list_asymmetric = {}
+key_length = 2048
 ''' '''
 private_key = rsa.generate_private_key(
   public_exponent=65537,
-  key_size=2048,
+  key_size=key_length,
   backend=default_backend()
 )
 ''' '''
@@ -106,7 +107,7 @@ def send(sock, message):
       )
     else:
       handshake(sock)
-    sock.send(to_send.encode())
+    sock.send(padding(to_send).encode())
     print("Successfully sent message.")
     return True
   except:
@@ -121,7 +122,7 @@ Returns a List of Strings
 
 def receive(sock):
     data, addr = sock.recvfrom(1024)
-    data = data.decode()
+    data = remove_padding(data.decode())
 
     #----   Open Key Cryptography Implementation
     if(len(data.split(split_term)) < 1 or not authorize(data.split(split_term)[0])):
@@ -200,6 +201,12 @@ def handshake(sock):
     info[1].encode(),
     backend=default_backend()
   ))
+
+def remove_padding(s):
+  return s.replace("`", "")
+
+def padding(s):
+  return s + ((key_length - len(s)) * "`")
 
 #----------------------------------------------------------------------------------------------
 

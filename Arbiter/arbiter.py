@@ -44,12 +44,12 @@ def main():
         _thread.start_new_thread(new_connection, (x,))
     print("Managing existing connections: ")
     for dev_type in types:
-      print("Type:" + split_term + dev_type)
+      print("Type: " +  dev_type)
       for conn in connections[types.index(dev_type)]:
         if(not conn.ready):
           continue
         try:
-          print("ip:" + split_term + str(conn.sock.getpeername()))
+          print("ip: " + str(conn.sock.getpeername()))
         except:
           print("ip: ?")
         if(dev_type == "appliance"):
@@ -94,10 +94,10 @@ def new_connection(ip):
       types.append(conn.type)
       connections.append([])
     connections[types.index(conn.type)].append(conn)
-    print("Succesfully established connection to:" + split_term + ip)
+    print("Succesfully established connection to: " + ip)
   else:
     dead_ip.append(ip)
-    print("Failed to establish connection to:" + split_term + ip)
+    print("Failed to establish connection to: " + ip)
 
 '''
 Method that checks the existing list of connected device ips against those recorded

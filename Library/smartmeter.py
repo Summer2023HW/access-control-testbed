@@ -82,7 +82,7 @@ def process(data):
     val = str(re.search(id[0] + ":\d+", str(data)).group(0))
     val = str(re.search("\d+", val).group(0))
     stored += int(val)
-  print("Total" + split_term +  id  + split_term + "Count:" + split_term +  str(stored))
+  print("Total " +  id  + " Count: " + str(stored))
 
 '''
 Upon request, inform the caller of the status of this Smart Meter
