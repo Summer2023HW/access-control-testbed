@@ -141,6 +141,7 @@ def receive(sock):
     #----   Open Key Cryptography Implementation
     if(sock.getpeername()[0] in communication_list_symmetric):
       data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
+      print("Decryption: " + str(data))
     else:
       data = communication_list_asymmetric[home].decrypt(
         data,
@@ -150,6 +151,7 @@ def receive(sock):
           label=None
         )
       )
+      print("Decryption: " + str(data))
     #---
 
     try:
