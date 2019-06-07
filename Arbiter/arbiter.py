@@ -25,20 +25,6 @@ dead_ip = []
 type = "arbiter"
 ''' Default port to connect to '''
 TCP_PORT = 5005
-''' '''
-private_key = rsa.generate_private_key(
-  public_exponent=65537,
-  key_size=2048,
-  backend=default_backend()
-)
-''' '''
-public_key = private_key.public_key()
-''' '''
-shared_key = public_key.public_bytes(
-  encoding=serialization.Encoding.PEM,
-  format=serialization.PublicFormat.SubjectPublicKeyInfo
-).decode()
-
 
 '''
 Main method that is called after all functions are defined; top-down code structure is preferred.
@@ -48,7 +34,6 @@ kinds of entities and disseminating information accordingly.
 
 def main():
   global dead_ip
-  set_asymmetric_key("0.0.0.0", private_key)
   sock = make_socket()
   bind_socket(sock, '', 24, TCP_PORT)
   count = 0
@@ -148,8 +133,6 @@ class Connection:
   '''   '''
   ready = False
   ''' '''
-  public_key = ""
-  ''' '''
   symmetric_key = ""
 
   '''
@@ -170,23 +153,17 @@ class Connection:
     self.sock = make_socket()
     if(not connect_socket(self.sock, self.ip, TCP_PORT)):
       return False
-    send(self.sock, authenticate() + split_term + "who" + split_term + str(shared_key))
+    send(self.sock, authenticate() + split_term + "who")
     data = receive(self.sock)
     if(data == None):
       return False
     auth = data[0]
     target_type = data[1]
     target_id = data[2]
-    target_public_key = data[3]
     if(authorize(auth)):
       self.id = target_id
       self.type = target_type
       self.ready = True
-      self.public_key = serialization.load_pem_public_key(
-        data[3],
-        password=None,
-        backend=default_backend()
-      )
       self.symmetric_key = Fernet.generate_key()
       send(self.sock, authenticate() + split_term + "symmetric" + split_term + self.symmetric_key)
       set_symmetric_key(self.sock.getpeername()[0], Fernet(self.symmetric_key))

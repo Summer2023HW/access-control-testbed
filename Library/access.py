@@ -12,6 +12,19 @@ from cryptography.fernet import Fernet
 home = "0.0.0.0"
 communication_list_symmetric = {}
 communication_list_asymmetric = {}
+''' '''
+private_key = rsa.generate_private_key(
+  public_exponent=65537,
+  key_size=2048,
+  backend=default_backend()
+)
+''' '''
+public_key = private_key.public_key()
+''' '''
+shared_key = public_key.public_bytes(
+  encoding=serialization.Encoding.PEM,
+  format=serialization.PublicFormat.SubjectPublicKeyInfo
+).decode()
 
 split_term = "::_::"
 
@@ -92,7 +105,7 @@ def send(sock, message):
         )
       )
     else:
-      print("No key found for ip: " + sock.getpeername()[0] + ", potentially non-fatal.")
+      handshake(sock)
     sock.send(to_send.encode())
     print("Successfully sent message.")
     return True
@@ -109,6 +122,8 @@ Returns a List of Strings
 def receive(sock):
     data, addr = sock.recvfrom(1024)
     data = data.decode()
+
+    #----   Open Key Cryptography Implementation
     if(len(data.split(split_term)) < 1 or not authorize(data.split(split_term)[0])):
       if(sock.getpeername()[0] in communication_list_symmetric):
         data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
@@ -121,10 +136,22 @@ def receive(sock):
             label=None
           )
         )
+    #---
 
     data = data.split(split_term)
     if(len(data) < 1):
       return None
+
+    #---
+    elif(data[0] == "key"):
+      set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
+        data[1].encode(),
+        backend=default_backend()
+      ))
+      send(sock, "key" + split_term + shared_key)
+      return None
+    #---
+
     try:
       print("Received Message: " + str(data) + " from: " + str(sock.getpeername()[0]))
     except:
@@ -161,3 +188,15 @@ def set_symmetric_key(ip, key):
 
 def set_asymmetric_key(ip, key):
   communication_list_asymmetric[ip] = key
+
+'''
+
+'''
+
+def handshake(sock):
+  send(sock, "key" + split_term + shared_key)
+  info = receive(sock)
+  set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
+    info[1].encode(),
+    backend=default_backend()
+  ))

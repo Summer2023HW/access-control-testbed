@@ -21,19 +21,6 @@ TCP_PORT = 5005
 type = 'appliance'
 ''' Specific id of this entity, specifying its nature '''
 id = ''
-''' '''
-private_key = rsa.generate_private_key(
-  public_exponent=65537,
-  key_size=2048,
-  backend=default_backend()
-)
-''' '''
-public_key = private_key.public_key()
-''' '''
-shared_key = public_key.public_bytes(
-  encoding=serialization.Encoding.PEM,
-  format=serialization.PublicFormat.SubjectPublicKeyInfo
-).decode()
 
 '''
 Main function that is called with set values for dynamic functioning; top-down code structure is preferred.
@@ -42,7 +29,6 @@ Main function that is called with set values for dynamic functioning; top-down c
 def start(set_id, val_water, val_electric):
   global id
   id = set_id
-  set_asymmetric_key("0.0.0.0", private_key)
   sock = make_socket()
   if(not bind_socket(sock, '', 12, TCP_PORT)):
     print("Failure to bind local socket, program shutting down.")
@@ -87,12 +73,7 @@ def process(sock):
       continue
     if(authorize(info[0])):
       if(info[1] == "who"):
-        re_key = info[2]
-        set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
-          re_key.encode(),
-          backend=default_backend()
-        ))
-        send(sock, authenticate() + split_term +  type + split_term +  id + split_term +  shared_key)
+        send(sock, authenticate() + split_term +  type + split_term +  id)
       elif(info[1] == "symmetric"):
         set_symmetric_key(sock.getpeername(), Fernet(info[2]))
       elif(info[1] == "contact"):

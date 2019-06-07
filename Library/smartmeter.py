@@ -1,8 +1,3 @@
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives import serialization
 from cryptography.fernet import Fernet
 import _thread
 import socket
@@ -19,19 +14,6 @@ type = 'smart_meter'
 id = ''
 ''' Default port to connect to '''
 TCP_PORT = 5005
-''' '''
-private_key = rsa.generate_private_key(
-  public_exponent=65537,
-  key_size=2048,
-  backend=default_backend()
-)
-''' '''
-public_key = private_key.public_key()
-''' '''
-shared_key = public_key.public_bytes(
-  encoding=serialization.Encoding.PEM,
-  format=serialization.PublicFormat.SubjectPublicKeyInfo
-).decode()
 
 '''
 Main function that is called with set values for dynamic functioning; binds listening socket and responds to received messages.
@@ -67,12 +49,7 @@ Given a socket to the arbiter, keep it open for further transmission
 '''
 
 def listen_arbiter (new_sock, info):
-  re_key = info[2]
-  set_asymmetric_key(new_sock.getpeername()[0], serialization.load_pem_public_key(
-      re_key.encode(),
-      backend=default_backend()
-    ))
-  send(new_sock, authenticate() + split_term + type + split_term + id + split_term + shared_key)
+  send(new_sock, authenticate() + split_term + type + split_term + id)
   while True:
     info = receive(new_sock)
     if(info == None):
