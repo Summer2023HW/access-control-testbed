@@ -107,7 +107,7 @@ def send(sock, message):
       )
     else:
       handshake(sock)
-    sock.send(padding(to_send).encode())
+    sock.send(add_padding(to_send).encode())
     print("Successfully sent message.")
     return True
   except:
@@ -122,7 +122,17 @@ Returns a List of Strings
 
 def receive(sock):
     data, addr = sock.recvfrom(1024)
-    data = remove_padding(data.decode())
+
+    data = data.decode()
+
+    #---
+    data = remove_padding(data)
+    #---
+
+    try:
+      print("Received Message: " + str(data) + " from: " + str(sock.getpeername()[0]))
+    except:
+      print("Received Message: " + str(data) + " from: ?")
 
     #----   Open Key Cryptography Implementation
     if(len(data.split(split_term)) < 1 or not authorize(data.split(split_term)[0])):
@@ -152,11 +162,6 @@ def receive(sock):
       send(sock, "key" + split_term + shared_key)
       return None
     #---
-
-    try:
-      print("Received Message: " + str(data) + " from: " + str(sock.getpeername()[0]))
-    except:
-      print("Received Message: " + str(data) + " from: ?")
     return data
 
 
@@ -205,7 +210,7 @@ def handshake(sock):
 def remove_padding(s):
   return s.replace("`", "")
 
-def padding(s):
+def add_padding(s):
   return s + ((key_length - len(s)) * "`")
 
 #----------------------------------------------------------------------------------------------
