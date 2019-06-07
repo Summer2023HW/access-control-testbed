@@ -155,9 +155,9 @@ def receive(sock):
       return None
 
     #---
-    elif(data[0] == "key" and not sock.getpeername()[0] in communication_list_asymmetric):
+    elif(data[1] == "key" and not sock.getpeername()[0] in communication_list_asymmetric):
       set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
-        data[1].encode(),
+        data[2].encode(),
         backend=default_backend()
       ))
       sock.send(("key" + split_term + shared_key).encode())
