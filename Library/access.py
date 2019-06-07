@@ -194,7 +194,7 @@ def set_asymmetric_key(ip, key):
 '''
 
 def handshake(sock):
-  send(sock, "key" + split_term + shared_key)
+  sock.send(("key" + split_term + shared_key).encode())
   info = receive(sock)
   set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
     info[1].encode(),
