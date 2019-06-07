@@ -108,7 +108,7 @@ def send(sock, message):
     else:
       handshake(sock)
       send(sock, message)
-    sock.send(add_padding(to_send).encode())
+    sock.send(to_send.encode())
     print("Successfully sent message.")
     return True
   except:
@@ -127,7 +127,7 @@ def receive(sock):
     data = data.decode()
 
     #---
-    data = remove_padding(data)
+    data = data
     #---
 
     try:
@@ -203,12 +203,6 @@ def set_asymmetric_key(ip, key):
 def handshake(sock):
   sock.send(("key" + split_term + shared_key).encode())
   receive(sock)
-
-def remove_padding(s):
-  return s.replace("`", "")
-
-def add_padding(s):
-  return s + ((key_length - len(s)) * "`")
 
 #----------------------------------------------------------------------------------------------
 
