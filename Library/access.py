@@ -135,7 +135,7 @@ def receive(sock):
       print("Received Message: " + str(data) + " from: ?")
 
     #----   Open Key Cryptography Implementation
-    if(len(data.split(split_term)) < 1 or not authorize(data.split(split_term)[0])):
+    if(len(data.split(split_term)) < 1 and not authorize(data.split(split_term)[0])):
       if(sock.getpeername()[0] in communication_list_symmetric):
         data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
       else:
