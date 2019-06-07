@@ -107,8 +107,8 @@ def send(sock, message):
       )
     else:
       handshake(sock)
-      send(sock, message)
-    sock.send(to_send.encode())
+      return send(sock, message)
+    sock.send(to_send)
     print("Successfully sent message.")
     return True
   except:
@@ -201,7 +201,7 @@ def set_asymmetric_key(ip, key):
 '''
 
 def handshake(sock):
-  sock.send(("key" + split_term + shared_key).encode())
+  sock.send((authenticate() + split_term + "key" + split_term + shared_key).encode())
   receive(sock)
 
 #----------------------------------------------------------------------------------------------
