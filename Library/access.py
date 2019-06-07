@@ -152,6 +152,11 @@ def receive(sock):
       )
     #---
 
+    try:
+      data = data.decode()
+    except:
+      data = data
+
     data = data.split(split_term)
     if(len(data) < 1):
       return None
