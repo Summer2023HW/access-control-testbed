@@ -106,7 +106,7 @@ def send(sock, message):
         )
       )
     else:
-      handshake(sock)
+      handshake_active(sock)
       return send(sock, message)
     sock.send(to_send)
     print("Successfully sent message.")
@@ -123,46 +123,36 @@ Returns a List of Strings
 
 def receive(sock):
     data, addr = sock.recvfrom(1024)
-
     data = data.decode()
-
-    #---
-    data = data
-    #---
 
     try:
       print("Received Message: " + str(data) + " from: " + str(sock.getpeername()[0]))
     except:
       print("Received Message: " + str(data) + " from: ?")
 
+
+    if(sock.getpeername()[0] not in communication_list_asymmetric and sock.getpeername()[0] not in communication_list_symmetric):
+      handshake_responsive(sock, data)
+      return None
+
     #----   Open Key Cryptography Implementation
-    if(len(data.split(split_term)) < 1 and not authorize(data.split(split_term)[0])):
-      if(sock.getpeername()[0] in communication_list_symmetric):
-        data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
-      else:
-        data = communication_list_asymmetric[home].decrypt(
-          data,
-          padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-          )
+    if(sock.getpeername()[0] in communication_list_symmetric):
+      data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
+    else:
+      data = communication_list_asymmetric[home].decrypt(
+        data,
+        padding.OAEP(
+          mgf=padding.MGF1(algorithm=hashes.SHA256()),
+          algorithm=hashes.SHA256(),
+          label=None
         )
+      )
     #---
 
     data = data.split(split_term)
     if(len(data) < 1):
       return None
 
-    #---
-    elif(data[1] == "key" and not sock.getpeername()[0] in communication_list_asymmetric):
-      set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
-        data[2].encode(),
-        backend=default_backend()
-      ))
-      sock.send(("key" + split_term + shared_key).encode())
-      return None
-    #---
     return data
 
 
@@ -200,9 +190,25 @@ def set_asymmetric_key(ip, key):
 
 '''
 
-def handshake(sock):
+def handshake_active(sock):
   sock.send((authenticate() + split_term + "key" + split_term + shared_key).encode())
-  receive(sock)
+  info, addr = sock.recvfrom(1024)
+  info = (info.decode()).split(split_term)
+  communication_list_asymmetric[sock.getpeername()[0]] = serialization.load_pem_public_key(
+    info[2].encode(),
+    backend=default_backend()
+  )
+
+'''
+
+'''
+
+def handshake_responsive(sock, info):
+  sock.send((authenticate() + split_term + "key" + split_term + shared_key).encode())
+  communication_list_asymmetric[sockgetpeername()[0]] = serialization.load_pem_public_key(
+    info[2].encode(),
+    backend=default_backend()
+  )
 
 #----------------------------------------------------------------------------------------------
 
