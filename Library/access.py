@@ -28,8 +28,6 @@ shared_key = public_key.public_bytes(
 
 split_term = "::_::"
 
-set_asymmetric_key(home, private_key)
-
 '''
 Manage the creation of a socket; setting initial values
 Returns Socket
@@ -202,3 +200,7 @@ def handshake(sock):
     info[1].encode(),
     backend=default_backend()
   ))
+
+#----------------------------------------------------------------------------------------------
+
+set_asymmetric_key(home, private_key)
