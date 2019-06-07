@@ -155,11 +155,11 @@ def receive(sock):
 
     #---
     elif(data[0] == "key"):
+      send(sock, "key" + split_term + shared_key)
       set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
         data[1].encode(),
         backend=default_backend()
       ))
-      send(sock, "key" + split_term + shared_key)
       return None
     #---
     return data
