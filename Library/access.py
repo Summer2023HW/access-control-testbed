@@ -129,7 +129,10 @@ def receive(sock):
     except:
       print("Received Message: " + str(data) + " from: ?")
 
-    data = data.decode()
+    try:
+      data = data.decode()
+    except:
+      data = data
 
     if(sock.getpeername()[0] not in communication_list_asymmetric and sock.getpeername()[0] not in communication_list_symmetric):
       handshake_responsive(sock, data)
