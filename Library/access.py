@@ -107,6 +107,7 @@ def send(sock, message):
       )
     else:
       handshake(sock)
+      send(sock, message)
     sock.send(add_padding(to_send).encode())
     print("Successfully sent message.")
     return True
@@ -154,12 +155,12 @@ def receive(sock):
       return None
 
     #---
-    elif(data[0] == "key"):
-      send(sock, "key" + split_term + shared_key)
+    elif(data[0] == "key" and not sock.getpeername()[0] in communication_list_asymmetric):
       set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
         data[1].encode(),
         backend=default_backend()
       ))
+      sock.send(("key" + split_term + shared_key).encode())
       return None
     #---
     return data
@@ -201,11 +202,7 @@ def set_asymmetric_key(ip, key):
 
 def handshake(sock):
   sock.send(("key" + split_term + shared_key).encode())
-  info = receive(sock)
-  set_asymmetric_key(sock.getpeername()[0], serialization.load_pem_public_key(
-    info[1].encode(),
-    backend=default_backend()
-  ))
+  receive(sock)
 
 def remove_padding(s):
   return s.replace("`", "")
