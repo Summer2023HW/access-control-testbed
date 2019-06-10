@@ -48,26 +48,26 @@ def start(set_id):
 Given a socket to the arbiter, keep it open for further transmission
 '''
 
-def listen_arbiter (new_sock, info):
-  send(new_sock, authenticate() + split_term + type + split_term + id)
+def listen_arbiter (sock, info):
+  send(sock, authenticate() + split_term + type + split_term + id)
   while True:
-    info = receive(new_sock)
+    info = receive(sock)
     if(info == None):
       continue
     if(authorize(info[0])):
       if(info[1] == "contact"):
-        send(new_sock, authenticate())
+        send(sock, authenticate())
       elif(info[1] == "symmetric"):
-        set_symmetric_key(sock.getpeername(), Fernet(info[2]))
+        set_symmetric_key(sock.getpeername(), Fernet(info[2]).encode())
 
 '''
 Given an ip, sets up socket to be responsive and react to expected input from that source
 '''
 
-def listen_appliance (new_sock, first):
+def listen_appliance (sock, first):
   process(first)
   while True:
-    data = receive(new_sock)
+    data = receive(sock)
     if(data == None):
       continue
     process(data)
