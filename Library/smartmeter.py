@@ -36,29 +36,29 @@ def start(set_id):
     if(authorize(info[0])):
       if(info[1] == "who"):
         _thread.start_new_thread(listen_arbiter, (conn, info,))
-      elif(info[1] == "request"):
-        respond_status(conn)
       elif(info[1] == "give"):
         _thread.start_new_thread(listen_appliance, (conn, info,))
     else:
       send(conn, "Failed Authorization, Disconnecting")
       close_socket(conn)
 
-'''
-Given a socket to the arbiter, keep it open for further transmission
-'''
-
-def listen_arbiter (sock, info):
-  send(sock, authenticate() + split_term + type + split_term + id)
+def process(sock):
   while True:
-    info = receive(sock)
+    info = receive(conn)
     if(info == None):
       continue
     if(authorize(info[0])):
       if(info[1] == "contact"):
         send(sock, authenticate())
+      elif(info[1] == "who"):
+        send(sock, authenticate() + split_term + type + split_term + id)
       elif(info[1] == "symmetric"):
         set_symmetric_key(sock.getpeername(), Fernet(info[2]))
+      elif(info[1] == "request"):
+        respond_status(conn)
+      elif(info[1] == "give"):
+        list_appliance(sock, info)
+
 
 '''
 Given an ip, sets up socket to be responsive and react to expected input from that source
@@ -70,13 +70,13 @@ def listen_appliance (sock, first):
     data = receive(sock)
     if(data == None):
       continue
-    process(data)
+    record(data)
 
 '''
 Given input that affects stored value of the smart_meter, processes it
 '''
 
-def process(data):
+def record(data):
   global stored, id
   if(authorize(data[0])):
     val = str(re.search(id[0] + ":\d+", str(data)).group(0))
