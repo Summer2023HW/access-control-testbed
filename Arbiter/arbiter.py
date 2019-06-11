@@ -165,7 +165,7 @@ class Connection:
       self.type = target_type
       self.ready = True
       self.symmetric_key = Fernet.generate_key()
-      send(self.sock, authenticate() + split_term + "symmetric" + split_term + self.symmetric_key)
+      send(self.sock, authenticate() + split_term + "symmetric" + split_term + self.symmetric_key.decode())
       set_symmetric_key(self.sock.getpeername()[0], Fernet(self.symmetric_key))
       return True
     else:
