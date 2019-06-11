@@ -30,11 +30,11 @@ def start(set_id):
   while True:
     conn, address = sock.accept()
     conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    _thread.start_new_thread(process, (sock,))
+    _thread.start_new_thread(process, (conn,))
 
 def process(sock):
   while True:
-    info = receive(conn)
+    info = receive(sock)
     if(info == None):
       continue
     if(authorize(info[0])):
@@ -45,7 +45,7 @@ def process(sock):
       elif(info[1] == "symmetric"):
         set_symmetric_key(sock.getpeername(), Fernet(info[2]))
       elif(info[1] == "request"):
-        respond_status(conn)
+        respond_status(sock)
       elif(info[1] == "give"):
         list_appliance(sock, info)
 
