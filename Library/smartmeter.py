@@ -58,7 +58,7 @@ def listen_arbiter (sock, info):
       if(info[1] == "contact"):
         send(sock, authenticate())
       elif(info[1] == "symmetric"):
-        set_symmetric_key(sock.getpeername(), Fernet(info[2]).encode())
+        set_symmetric_key(sock.getpeername(), Fernet(info[2]))
 
 '''
 Given an ip, sets up socket to be responsive and react to expected input from that source
