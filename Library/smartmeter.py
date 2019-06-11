@@ -30,17 +30,7 @@ def start(set_id):
   while True:
     conn, address = sock.accept()
     conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    info = receive(conn)
-    if(info == None):
-      continue
-    if(authorize(info[0])):
-      if(info[1] == "who"):
-        _thread.start_new_thread(listen_arbiter, (conn, info,))
-      elif(info[1] == "give"):
-        _thread.start_new_thread(listen_appliance, (conn, info,))
-    else:
-      send(conn, "Failed Authorization, Disconnecting")
-      close_socket(conn)
+    _thread.start_new_thread(process, (sock,))
 
 def process(sock):
   while True:
