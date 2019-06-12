@@ -9,24 +9,27 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.fernet import Fernet
 
+''' ip address representing the home device; leads to the asymmetric private key for decryption'''
 home = "0.0.0.0"
+''' Dictionary object of [ip address : symmetric key] relationships; represents the unique key associated to each ip for decryption'''
 communication_list_symmetric = {}
+''' Dictionary object of [ip address : asymmetric key] relationships; represents the unique key associated to each ip for decryption'''
 communication_list_asymmetric = {}
+''' Numerical value representing the desired length of the asymmetric key that should be generated'''
 key_length = 2048
-''' '''
+''' Asymmetric private key object for decrypting messages received that have been encrypted with the matching public key'''
 private_key = rsa.generate_private_key(
   public_exponent=65537,
   key_size=key_length,
   backend=default_backend()
 )
-''' '''
+''' Asymmetric public key object for encrypting messages; shared to other entities so that they can securely communicate one-way'''
 public_key = private_key.public_key()
-''' '''
-shared_key = public_key.public_bytes(
+''' String format of the asymmetric public key that can be sent to other network entities for reconstruction'''
+shared_key = make_decoded(public_key.public_bytes(
   encoding=serialization.Encoding.PEM,
-  format=serialization.PublicFormat.SubjectPublicKeyInfo
-).decode()
-
+  format=serialization.PublicFormat.SubjectPublicKeyInfo))
+''' String term used as the common dividing term between components of messages sent between network entities'''
 split_term = "::_::"
 
 '''
@@ -91,14 +94,19 @@ Returns Boolean
 '''
 
 def send(sock, message):
-  print("Sending message: '" + message + "' to: " + str(sock.getpeername()[0]))
   try:
-    to_send = message
-    if(sock.getpeername()[0] in communication_list_symmetric):
-      to_send = communication_list_symmetric[sock.getpeername()[0]].encrypt(to_send.encode())
-    elif(sock.getpeername()[0] in communication_list_asymmetric):
-      to_send = communication_list_asymmetric[sock.getpeername()[0]].encrypt(
-        to_send.encode(),
+    target = sock.getpeername()[0]
+  except:
+    print("-Target address' name unresolved.-")
+    target = "?"
+  print("Sending message: '" + message + "' to: " + str(target))
+  try:
+    to_send = make_encoded(message)
+    if(target in communication_list_symmetric):
+      to_send = communication_list_symmetric[target].encrypt(to_send)
+    elif(target in communication_list_asymmetric):
+      to_send = communication_list_asymmetric[target].encrypt(
+        to_send,
         padding.OAEP(
           mgf=padding.MGF1(algorithm=hashes.SHA256()),
           algorithm=hashes.SHA256(),
@@ -112,7 +120,7 @@ def send(sock, message):
     print("Successfully sent message.")
     return True
   except:
-    print("Failure to send message from: " + str(sock.getsockname()[0]))
+    print("-Failure to send message from: " + str(sock.getsockname()[0]) + "-")
     print(sys.exc_info())
     return False
 
@@ -125,22 +133,21 @@ def receive(sock):
     data, addr = sock.recvfrom(1024)
 
     try:
-      print("Received Message: " + str(data) + " from: " + str(sock.getpeername()[0]))
+      target = sock.getpeername()[0]
     except:
-      print("Received Message: " + str(data) + " from: ?")
+      return None
 
-    try:
-      data = data.decode()
-    except:
-      data = data
+    data = make_decoded(data)
 
-    if(sock.getpeername()[0] not in communication_list_asymmetric and sock.getpeername()[0] not in communication_list_symmetric):
+    print("Received Message: " + str(data) + " from: " + str(sock.getpeername()[0]))
+
+    if(target not in communication_list_asymmetric and target not in communication_list_symmetric):
       handshake_responsive(sock, data)
       return None
 
     #----   Open Key Cryptography Implementation
-    if(sock.getpeername()[0] in communication_list_symmetric):
-      data = communication_list_symmetric[sock.getpeername()[0]].decrypt(data)
+    if(target in communication_list_symmetric):
+      data = communication_list_symmetric[target].decrypt(data)
       print("Decryption: " + str(data))
     else:
       data = communication_list_asymmetric[home].decrypt(
@@ -154,12 +161,8 @@ def receive(sock):
       print("Decryption: " + str(data))
     #---
 
-    try:
-      data = data.decode()
-    except:
-      data = data
+    data = make_decoded(data).split(split_term)
 
-    data = data.split(split_term)
     if(len(data) < 1):
       return None
 
@@ -183,47 +186,70 @@ def authenticate():
   return "auth"
 
 '''
+Method to handle the initial contact of two network entites as the active agent initiating the handshake.
+'''
 
+def handshake_active(sock):
+  sock.send(make_encoded(authenticate() + split_term + "key" + split_term + shared_key))
+  info, addr = sock.recvfrom(1024)
+  info = make_decoded(info).split(split_term)
+  communication_list_asymmetric[sock.getpeername()[0]] = recreate_public_key(info[2])
+
+'''
+Method to handle the response to a first-time communication that another network entity has initiated.
+'''
+
+def handshake_responsive(sock, info):
+  sock.send(make_encoded((authenticate() + split_term + "key" + split_term + shared_key))
+  info = info.split(split_term)
+  communication_list_asymmetric[sock.getpeername()[0]] = recreate_public_key(info[2])
+
+'''
+Method to generate an asymmetric public key from the provided root key; public keys can be
+shared between network entities but only as Strings that have to have the key be derived therefrom.
+'''
+
+def recreate_public_key(key):
+  return serialization.load_pem_public_key(
+    make_encoded(key),
+    backend=default_backend()
+  )
+
+'''
+Method to wrap the process of encoding a message (in terms of Strings to byte-like objects); catches the attempt
+to encode an already encoded object.
+'''
+
+def make_encoded(in):
+  try:
+    return in.encode()
+  except:
+    return in
+
+'''
+Method to wrap the process of decoding a message (in terms of byte-like objects to String); catches the attempt
+to decode an already decoded object.
+'''
+
+def make_decoded(in):
+  try:
+    return in.decode()
+  except:
+    return in
+
+'''
+Method to assign a given symmetric key to the designated ip address for later usage.
 '''
 
 def set_symmetric_key(ip, key):
   communication_list_symmetric[ip] = key
 
 '''
-
+Method to assign a given public key to the designated ip address for later usage.
 '''
 
 def set_asymmetric_key(ip, key):
   communication_list_asymmetric[ip] = key
-
-'''
-
-'''
-
-def handshake_active(sock):
-  sock.send((authenticate() + split_term + "key" + split_term + shared_key).encode())
-  info, addr = sock.recvfrom(1024)
-  info = (info.decode()).split(split_term)
-  print("Key Info: ")
-  print(info[2])
-  communication_list_asymmetric[sock.getpeername()[0]] = serialization.load_pem_public_key(
-    info[2].encode(),
-    backend=default_backend()
-  )
-
-'''
-
-'''
-
-def handshake_responsive(sock, info):
-  sock.send((authenticate() + split_term + "key" + split_term + shared_key).encode())
-  info = info.split(split_term)
-  print("Key Info: ")
-  print(info[2])
-  communication_list_asymmetric[sock.getpeername()[0]] = serialization.load_pem_public_key(
-    info[2].encode(),
-    backend=default_backend()
-  )
 
 #----------------------------------------------------------------------------------------------
 
