@@ -49,15 +49,14 @@ def main():
         if(not conn.ready):
           continue
         try:
-          print("ip: " + str(conn.sock.getpeername()))
+          target = conn.sock.getpeername()
         except:
-          print("ip: ?")
+          target = "?"
+        print("ip: " + target)
         if(dev_type == "appliance"):
-          send = update_list(conn, "smart_meter")
-          conn.send_new_ip(send)
+          conn.send_new_ip(update_list(conn, "smart_meter"))
         elif(dev_type == "device"):
-          send = update_list(conn, "smart_meter")
-          conn.send_new_ip(send)
+          conn.send_new_ip(update_list(conn, "smart_meter"))
     time.sleep(2)
     count = (count + 1) % 10
     if(count == 0):
@@ -76,9 +75,18 @@ Returns a list of Strings
 '''
 
 def scan_network():
-  raw_ip = subprocess.Popen(['arp','-a'], stdout=subprocess.PIPE).communicate()
-  expression = '\d+\.\d+\.\d+\.\d+'
-  return re.findall(expression, str(raw_ip))
+  try:
+    raw_ip = subprocess.Popen(['arp','-a'], stdout=subprocess.PIPE).communicate()
+    expression = '\d+\.\d+\.\d+\.\d+'
+    return re.findall(expression, str(raw_ip))
+  except:
+    f = open("../network_ip.txt", "r")
+    ip_list = []
+    for line in f:
+      ip_list.append(line)
+    return ip_list
+
+
 
 '''
 Method to establish a new connection given a viable ip address; attempts to create
