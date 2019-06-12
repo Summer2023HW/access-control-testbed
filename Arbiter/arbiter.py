@@ -153,7 +153,7 @@ class Connection:
     self.sock = make_socket()
     if(not connect_socket(self.sock, self.ip, TCP_PORT)):
       return False
-    send(self.sock, authenticate() + split_term + "who")
+    send(self.sock, "who")
     data = receive(self.sock)
     if(data == None):
       return False
@@ -165,7 +165,7 @@ class Connection:
       self.type = target_type
       self.ready = True
       self.symmetric_key = Fernet.generate_key()
-      send(self.sock, authenticate() + split_term + "symmetric" + split_term + self.symmetric_key.decode())
+      send(self.sock, "symmetric" + split_term + self.symmetric_key.decode())
       set_symmetric_key(self.sock.getpeername()[0], Fernet(self.symmetric_key))
       return True
     else:
@@ -180,7 +180,7 @@ class Connection:
   def send_new_ip(self, ips):
     if(ips == []):
       return
-    message = authenticate() + split_term + "new_ip"
+    message = "new_ip"
     for ip in ips:
       message += split_term + "" + ip
     if(send(self.sock, message)):
@@ -192,7 +192,7 @@ class Connection:
   '''
 
   def update_contacts(self,):
-    send(self.sock, authenticate() + split_term + "contact")
+    send(self.sock, "contact")
     data = receive(self.sock)
     if(data == None):
       return

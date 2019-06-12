@@ -1,9 +1,3 @@
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives import serialization
-from cryptography.fernet import Fernet
 import _thread
 import socket
 import random
@@ -24,6 +18,7 @@ id = ''
 
 '''
 Main function that is called with set values for dynamic functioning; top-down code structure is preferred.
+Sends a message periodically.
 '''
 
 def start(set_id, val_water, val_electric):
@@ -39,16 +34,17 @@ def start(set_id, val_water, val_electric):
   while True:
     numWat = random.randint(0, val_water)
     numElec = random.randint(0, val_electric)
-    message = authenticate() + split_term + "give" + split_term + "w:" + str(numWat) + split_term + "e:" + str(numElec)
-    print("Sending message: '" + message + "' to ips:")
+    message = "give" + split_term + "w:" + str(numWat) + split_term + "e:" + str(numElec)
+    build = "Sent message: '" + message + "' to ips:"
     for hold in LIVE_CONNECTIONS:
       conn = hold[1]
       if(send(conn, message)):
-        print("  Live:" + str(hold[0]))
+        build += "\n  Live:" + str(hold[0])
       else:
-        print("  Dead (Removed):" + str(hold[0]))
+        build += "\n  Dead (Removed):" + str(hold[0])
         close_socket(conn)
         LIVE_CONNECTIONS.remove(hold)
+    print(build)
     time.sleep(5)
 
 '''
@@ -64,6 +60,7 @@ def listen (sock):
 
 '''
 Defines the response to incoming messages once a connection has been established
+Receives a message
 '''
 
 def process(sock):
@@ -73,22 +70,53 @@ def process(sock):
       continue
     if(authorize(info[0])):
       if(info[1] == "who"):
-        send(sock, authenticate() + split_term +  type + split_term +  id)
+        react_identity(sock)
       elif(info[1] == "symmetric"):
-        set_symmetric_key(sock.getpeername(), Fernet(info[2]))
+        react_receive_symmetric_key(sock, info)
       elif(info[1] == "contact"):
-        list_conn = authenticate()
-        for x in LIVE_CONNECTIONS:
-          list_conn += "" + split_term + x[0]
-        send(sock, list_conn)
+        react_provide_contacts(sock)
       elif(info[1] == "new_ip"):
-        send(sock, "Received")
-        for ip in info[2:]:
-          ip_key = ip.split(",")
-          new_sock = make_socket()
-          if(connect_socket(new_sock, ip_key[0], TCP_PORT) and sum([1 for x in LIVE_CONNECTIONS if x[0] == ip_key[0]]) < 1):
-            set_symmetric_key(ip_key[0], Fernet(ip_key[1]))
-            LIVE_CONNECTIONS.append((ip, new_sock,))
+        react_new_contacts(sock, info)
     else:
       send(sock, "Failed Authorization, Disconnecting")
       close_socket(sock);
+
+'''
+Method to define how this entity should respond to having its identity requested
+Responds with a message
+'''
+
+def react_identity(sock):
+  send(sock, type + split_term + id)
+
+'''
+Method to define how this entity should react to having its contact list requested
+Responds with a message
+'''
+
+def react_provide_contacts(sock):
+  list_conn = ""
+  for x in LIVE_CONNECTIONS:
+    list_conn += split_term + x[0]
+  send(sock, list_conn[len(split_term):])
+
+'''
+Method to define how this entity should react to being directly given a symmetric key from another entity
+Does NOT respond with a message
+'''
+
+def react_receive_symmetric_key(sock, info):
+  set_symmetric_key(sock.getpeername()[0], info[2])
+
+'''
+Method to define how this entity should react to being given a list of new ip addresses to communicate with
+Does NOT respond with a message
+'''
+
+def react_new_contacts(sock, info):
+  for ip in info[2:]:
+    ip_key = ip.split(",")
+    new_sock = make_socket()
+    if(connect_socket(new_sock, ip_key[0], TCP_PORT) and sum([1 for x in LIVE_CONNECTIONS if x[0] == ip_key[0]]) < 1):
+      set_symmetric_key(ip_key[0], ip_key[1])
+      LIVE_CONNECTIONS.append((ip, new_sock,))

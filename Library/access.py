@@ -101,7 +101,7 @@ def send(sock, message):
     target = "?"
   print("Sending message: '" + message + "' to: " + str(target))
   try:
-    to_send = make_encoded(message)
+    to_send = make_encoded(authenticate() + split_term + message)
     if(target in communication_list_symmetric):
       to_send = communication_list_symmetric[target].encrypt(to_send)
     elif(target in communication_list_asymmetric):
@@ -242,6 +242,10 @@ Method to assign a given symmetric key to the designated ip address for later us
 '''
 
 def set_symmetric_key(ip, key):
+  try:
+    key = Fernet(make_decoded(key))
+  except:
+    pass
   communication_list_symmetric[ip] = key
 
 '''
@@ -249,6 +253,10 @@ Method to assign a given public key to the designated ip address for later usage
 '''
 
 def set_asymmetric_key(ip, key):
+  try:
+    key = recreate_public_key(key)
+  except:
+    pass
   communication_list_asymmetric[ip] = key
 
 #----------------------------------------------------------------------------------------------

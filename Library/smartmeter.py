@@ -1,4 +1,3 @@
-from cryptography.fernet import Fernet
 import _thread
 import socket
 import sys
@@ -32,6 +31,10 @@ def start(set_id):
     conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     _thread.start_new_thread(process, (conn,))
 
+'''
+Method to handle incoming messages on an active socket
+'''
+
 def process(sock):
   while True:
     info = receive(sock)
@@ -39,15 +42,15 @@ def process(sock):
       continue
     if(authorize(info[0])):
       if(info[1] == "contact"):
-        send(sock, authenticate())
+        send(sock, "")
       elif(info[1] == "who"):
-        send(sock, authenticate() + split_term + type + split_term + id)
+        send(sock, type + split_term + id)
       elif(info[1] == "symmetric"):
-        set_symmetric_key(sock.getpeername(), Fernet(info[2]))
+        set_symmetric_key(sock.getpeername()[0], info[2])
       elif(info[1] == "request"):
         respond_status(sock)
       elif(info[1] == "give"):
-        list_appliance(sock, info)
+        listen_appliance(sock, info)
 
 
 '''
