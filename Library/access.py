@@ -220,22 +220,22 @@ Method to wrap the process of encoding a message (in terms of Strings to byte-li
 to encode an already encoded object.
 '''
 
-def make_encoded(in):
+def make_encoded(term):
   try:
-    return in.encode()
+    return term.encode()
   except:
-    return in
+    return term
 
 '''
-Method to wrap the process of decoding a message (in terms of byte-like objects to String); catches the attempt
+Method to wrap the process of decodtermg a message (in terms of byte-like objects to String); catches the attempt
 to decode an already decoded object.
 '''
 
-def make_decoded(in):
+def make_decoded(term):
   try:
-    return in.decode()
+    return term.decode()
   except:
-    return in
+    return term
 
 '''
 Method to assign a given symmetric key to the designated ip address for later usage.
