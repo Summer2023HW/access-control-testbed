@@ -9,29 +9,6 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 from cryptography.fernet import Fernet
 
-''' ip address representing the home device; leads to the asymmetric private key for decryption'''
-home = "0.0.0.0"
-''' Dictionary object of [ip address : symmetric key] relationships; represents the unique key associated to each ip for decryption'''
-communication_list_symmetric = {}
-''' Dictionary object of [ip address : asymmetric key] relationships; represents the unique key associated to each ip for decryption'''
-communication_list_asymmetric = {}
-''' Numerical value representing the desired length of the asymmetric key that should be generated'''
-key_length = 2048
-''' Asymmetric private key object for decrypting messages received that have been encrypted with the matching public key'''
-private_key = rsa.generate_private_key(
-  public_exponent=65537,
-  key_size=key_length,
-  backend=default_backend()
-)
-''' Asymmetric public key object for encrypting messages; shared to other entities so that they can securely communicate one-way'''
-public_key = private_key.public_key()
-''' String format of the asymmetric public key that can be sent to other network entities for reconstruction'''
-shared_key = make_decoded(public_key.public_bytes(
-  encoding=serialization.Encoding.PEM,
-  format=serialization.PublicFormat.SubjectPublicKeyInfo))
-''' String term used as the common dividing term between components of messages sent between network entities'''
-split_term = "::_::"
-
 '''
 Manage the creation of a socket; setting initial values
 Returns Socket
@@ -227,7 +204,7 @@ def make_encoded(term):
     return term
 
 '''
-Method to wrap the process of decodtermg a message (in terms of byte-like objects to String); catches the attempt
+Method to wrap the process of decoding a message (in terms of byte-like objects to String); catches the attempt
 to decode an already decoded object.
 '''
 
@@ -260,5 +237,28 @@ def set_asymmetric_key(ip, key):
   communication_list_asymmetric[ip] = key
 
 #----------------------------------------------------------------------------------------------
+
+''' ip address representing the home device; leads to the asymmetric private key for decryption'''
+home = "0.0.0.0"
+''' Dictionary object of [ip address : symmetric key] relationships; represents the unique key associated to each ip for decryption'''
+communication_list_symmetric = {}
+''' Dictionary object of [ip address : asymmetric key] relationships; represents the unique key associated to each ip for decryption'''
+communication_list_asymmetric = {}
+''' Numerical value representing the desired length of the asymmetric key that should be generated'''
+key_length = 2048
+''' Asymmetric private key object for decrypting messages received that have been encrypted with the matching public key'''
+private_key = rsa.generate_private_key(
+  public_exponent=65537,
+  key_size=key_length,
+  backend=default_backend()
+)
+''' Asymmetric public key object for encrypting messages; shared to other entities so that they can securely communicate one-way'''
+public_key = private_key.public_key()
+''' String format of the asymmetric public key that can be sent to other network entities for reconstruction'''
+shared_key = make_decoded(public_key.public_bytes(
+  encoding=serialization.Encoding.PEM,
+  format=serialization.PublicFormat.SubjectPublicKeyInfo))
+''' String term used as the common dividing term between components of messages sent between network entities'''
+split_term = "::_::"
 
 set_asymmetric_key(home, private_key)
