@@ -200,7 +200,7 @@ Method to handle the response to a first-time communication that another network
 '''
 
 def handshake_responsive(sock, info):
-  sock.send(make_encoded((authenticate() + split_term + "key" + split_term + shared_key))
+  sock.send(make_encoded(authenticate() + split_term + "key" + split_term + shared_key))
   info = info.split(split_term)
   communication_list_asymmetric[sock.getpeername()[0]] = recreate_public_key(info[2])
 
