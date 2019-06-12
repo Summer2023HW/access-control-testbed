@@ -1,8 +1,3 @@
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives import serialization
 from cryptography.fernet import Fernet
 import subprocess
 import _thread
@@ -57,15 +52,23 @@ def main():
           conn.send_new_ip(update_list(conn, "smart_meter"))
         elif(dev_type == "device"):
           conn.send_new_ip(update_list(conn, "smart_meter"))
-    time.sleep(2)
     count = (count + 1) % 10
     if(count == 0):
-      print("Updating arp cache via bash script ping_network.sh...")
-      dead_ip = []
-      subprocess.Popen(['./ping_network.sh'], stdout=subprocess.PIPE).communicate()
-      for dev_type in types:
-        for conn in connections[types.index(dev_type)]:
-          conn.update_contacts()
+      _thread.start_new_thread(update_arp(), ())
+    time.sleep(2)
+
+'''
+Method to update the list of connected devices that this network entity is in contact with via a bash script
+ping_network.sh; delegated to its own method so it could be multithreaded during the time.sleep(2).
+'''
+
+def update_arp():
+  print("Updating arp cache via bash script ping_network.sh...")
+  dead_ip = []
+  subprocess.Popen(['./ping_network.sh'], stdout=subprocess.PIPE).communicate()
+  for dev_type in types:
+    for conn in connections[types.index(dev_type)]:
+      conn.update_contacts()
 
 
 '''
@@ -172,8 +175,8 @@ class Connection:
       self.type = target_type
       self.ready = True
       self.symmetric_key = Fernet.generate_key()
-      send(self.sock, "symmetric" + split_term + self.symmetric_key.decode())
-      set_symmetric_key(self.sock.getpeername()[0], Fernet(self.symmetric_key))
+      send(self.sock, "symmetric" + split_term + make_decoded(self.symmetric_key))
+      set_symmetric_key(self.sock.getpeername()[0], self.symmetric_key)
       return True
     else:
       close_socket(self.sock)
