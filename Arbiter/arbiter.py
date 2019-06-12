@@ -75,16 +75,15 @@ Returns a list of Strings
 '''
 
 def scan_network():
-  try:
-    raw_ip = subprocess.Popen(['arp','-a'], stdout=subprocess.PIPE).communicate()
-    expression = '\d+\.\d+\.\d+\.\d+'
-    return re.findall(expression, str(raw_ip))
-  except:
+  raw_ip = subprocess.Popen(['arp','-a'], stdout=subprocess.PIPE).communicate()
+  expression = '\d+\.\d+\.\d+\.\d+'
+  ip_list = re.findall(expression, str(raw_ip))
+  if(len(ip_list) == 0):
     f = open("../network_ip.txt", "r")
     ip_list = []
     for line in f:
       ip_list.append(line)
-    return ip_list
+  return ip_list
 
 
 
