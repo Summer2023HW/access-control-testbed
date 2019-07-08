@@ -47,7 +47,7 @@ def main():
           target = conn.sock.getpeername()
         except:
           target = "?"
-        print("ip: " + target)
+        print("ip: " + str(target))
         if(dev_type == "appliance"):
           conn.send_new_ip(update_list(conn, "smart_meter"))
         elif(dev_type == "device"):
