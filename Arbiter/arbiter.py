@@ -119,7 +119,7 @@ def update_list(conn, type):
   send = []
   for app in connections[types.index(type)]:
     if(app.ip not in conn.contacts):
-      send.append(app.ip + "," + app.symmetric_key)
+      send.append(str(app.ip) + "," + str(app.symmetric_key))
   return send
 
 #----------------------------------------------------------------------------------------------
