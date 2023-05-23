@@ -2,7 +2,7 @@ import _thread
 import socket
 import sys
 import re
-sys.path.insert(0, "../Library")
+#sys.path.insert(0, "../Library")
 from access import *
 
 ''' Value representing total consumption as recorded by this SmartMeter '''
