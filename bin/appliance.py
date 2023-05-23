@@ -30,10 +30,10 @@ class Appliance:
     self.id = name
 
     # power consumption
-    self.power = power
+    self.val_electric = power
 
     # water consumption
-    self.water = water
+    self.val_water = water
 
   def start(self):
     '''
@@ -167,5 +167,5 @@ if __name__ == '__main__':
     Appliance(sys.argv[1], int(sys.argv[2]), int(sys.argv[3])).start()
 
   # Print error message if failed
-  except:
+  except IndexError:
     print(f'Usage: {sys.argv[0]} [name] [power consumption] [water consumption]', file=sys.stderr)
