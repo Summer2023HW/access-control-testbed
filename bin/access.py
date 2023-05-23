@@ -1,39 +1,54 @@
 import hashlib
+import re
 import socket
 import sys
-import re
-from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives import serialization
+
 from cryptography.fernet import Fernet
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
+
 
 def make_socket():
-  '''
-  Create and return a socket
-  '''
+  """Create and return a socket.
+
+  Returns:
+    A socket.
+  """
   
   sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
   sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
   return sock
 
 def close_socket(sock):
-  '''
-  Close a socket
-  '''
+  """Close a socket.
 
+  Args:
+    sock: Socket to close
+  """
+
+  # attempt to close socket
   try:
     sock.shutdown(socket.SHUT_RDWR)
     sock.close()
+
+  # display error message if it fails
   except:
-    print("--Error in Socket Closing - Potentially non-fatal--")
-    print(sys.exc_info())
+    print("Error closing socket.", file=sys.stderr)
+    print(sys.exc_info(), file=sys.stderr)
 
 def bind_socket(sock, ip, num_connections, tcp_port):
-  '''
-  Bind a socket. Return True if successful
-  '''
+  """Bind a socket.
+
+  Args:
+    sock:
+    ip:
+    num_connections:
+    tcp_port:
+  
+  Returns:
+    True if successful, otherwise False.
+  """
 
   try:
     sock.bind((ip, tcp_port))
@@ -49,9 +64,16 @@ def bind_socket(sock, ip, num_connections, tcp_port):
     return False
 
 def connect_socket(sock, ip, tcp_port):
-  '''
-  Connect a socket to an IP/port. Return True if successful
-  '''
+  """Connect a socket to an IP/port.
+
+  Args:
+    sock:
+    ip:
+    tcp_port:
+
+  Returns:
+    True if successful, otherwise False.
+  """
 
   try:
     sock.connect((ip, tcp_port))
@@ -64,9 +86,15 @@ def connect_socket(sock, ip, tcp_port):
     return False
 
 def send(sock, message):
-  '''
-  Send a message. Return True if successful
-  '''
+  """Send a message.
+
+  Args:
+    sock:
+    message:
+  
+  Returns:
+    True if successful, otherwise False.   
+  """
 
   try:
     target = sock.getpeername()[0]
@@ -108,9 +136,14 @@ def send(sock, message):
     return False
 
 def receive(sock):
-  '''
-  Listen to a socket. Return strings received
-  '''
+  """Listen to a socket.
+
+  Args:
+    sock: 
+
+  Returns:
+    List of strings received.
+  """
   data, addr = sock.recvfrom(1024)
 
   try:
@@ -150,65 +183,97 @@ def receive(sock):
   return data
 
 def authorize(info):
-  '''
-  Authorize authentication key received from a message
-  '''
+  """Authorize authentication key received from a message.
+
+  Returns:
+    True if key is authorized, otherwise False.
+  """
+
   return info == "auth"
 
 def authenticate():
-  '''
-  Generate authentification key to send with messages
-  '''
+  """Return an authentication key.
+
+  Returns:
+    Authentication key.
+  """
+
   return "auth"
 
 def handshake_active(sock):
-  '''
-  Handle initial contact between agents (as agent initiating handshake)
-  '''
+  """Handle initial contact between agents (as agent initiating handshake)
+
+  Args:
+    sock:
+  """
+
   sock.send(make_encoded(authenticate() + split_term + "key" + split_term + shared_key))
   info, addr = sock.recvfrom(1024)
   info = make_decoded(info).split(split_term)
   communication_list_asymmetric[sock.getpeername()[0]] = recreate_public_key(info[2])
 
 def handshake_responsive(sock, info):
-  '''
-  Respond to handshake
-  '''
+  """Respond to handshake.
+
+  Args:
+    sock:
+    info:
+  """
+
   sock.send(make_encoded(authenticate() + split_term + "key" + split_term + shared_key))
   info = info.split(split_term)
   communication_list_asymmetric[sock.getpeername()[0]] = recreate_public_key(info[2])
 
 def recreate_public_key(key):
-  '''
-  Method to generate an asymmetric public key from the provided root key
-  '''
+  """Method to generate an asymmetric public key from the provided root key.
+
+  Args:
+    key:
+  
+  Returns:
+
+  """
   return serialization.load_pem_public_key(
     make_encoded(key),
     backend=default_backend()
   )
 
 def make_encoded(term):
-  '''
-  Wraper for encode()
-  '''
+  """Wrapper for encode()
+
+  Args:
+    term:
+  
+  Returns:
+
+  """
+
   try:
     return term.encode()
   except:
     return term
 
 def make_decoded(term):
-  '''
-  Wrapper for decode()
-  '''
+  """Wrapper for decode()
+
+  Args:
+    term:
+
+  Returns:
+
+  """
   try:
     return term.decode()
   except:
     return term
 
 def set_symmetric_key(ip, key):
-  '''
-  Assign a given symmetric key to the designated ip address
-  '''
+  """Assign a symmetric key to an ip address.
+
+  Args:
+    ip:
+    key:
+  """
 
   try:
     key = Fernet(make_decoded(key))
@@ -219,9 +284,12 @@ def set_symmetric_key(ip, key):
   communication_list_symmetric[ip] = key
 
 def set_asymmetric_key(ip, key):
-  '''
-  Assign a given public key to the designated ip address
-  '''
+  """Assign a public key to an ip address.
+
+  Args:
+    ip:
+    key:
+  """
 
   try:
     key = recreate_public_key(key)
@@ -231,27 +299,27 @@ def set_asymmetric_key(ip, key):
 
   communication_list_asymmetric[ip] = key
 
-''' ip address representing the home device; leads to the asymmetric private key for decryption'''
+""" ip address representing the home device; leads to the asymmetric private key for decryption"""
 home = "0.0.0.0"
-''' Dictionary object of [ip address : symmetric key] relationships; represents the unique key associated to each ip for decryption'''
+""" Dictionary object of [ip address : symmetric key] relationships; represents the unique key associated to each ip for decryption"""
 communication_list_symmetric = {}
-''' Dictionary object of [ip address : asymmetric key] relationships; represents the unique key associated to each ip for decryption'''
+""" Dictionary object of [ip address : asymmetric key] relationships; represents the unique key associated to each ip for decryption"""
 communication_list_asymmetric = {}
-''' Numerical value representing the desired length of the asymmetric key that should be generated'''
+""" Numerical value representing the desired length of the asymmetric key that should be generated"""
 key_length = 2048
-''' Asymmetric private key object for decrypting messages received that have been encrypted with the matching public key'''
+""" Asymmetric private key object for decrypting messages received that have been encrypted with the matching public key"""
 private_key = rsa.generate_private_key(
   public_exponent=65537,
   key_size=key_length,
   backend=default_backend()
 )
-''' Asymmetric public key object for encrypting messages; shared to other entities so that they can securely communicate one-way'''
+""" Asymmetric public key object for encrypting messages; shared to other entities so that they can securely communicate one-way"""
 public_key = private_key.public_key()
-''' String format of the asymmetric public key that can be sent to other network entities for reconstruction'''
+""" String format of the asymmetric public key that can be sent to other network entities for reconstruction"""
 shared_key = make_decoded(public_key.public_bytes(
   encoding=serialization.Encoding.PEM,
   format=serialization.PublicFormat.SubjectPublicKeyInfo))
-''' String term used as the common dividing term between components of messages sent between network entities'''
+""" String term used as the common dividing term between components of messages sent between network entities"""
 split_term = "::_::"
 
 set_asymmetric_key(home, private_key)
