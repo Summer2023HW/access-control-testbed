@@ -3,7 +3,7 @@ import socket
 import random
 import time
 import sys
-import re
+#import re
 from access import *
 
 #sys.path.insert(0, "../Library")
