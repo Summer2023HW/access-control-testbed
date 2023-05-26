@@ -1,5 +1,5 @@
 #!/bin/bash
-cat ../network_ip.txt | while read output
+cat ../assets/network_ip.txt | while read output
 do
 	ping -q -c 1 -i 0.3 $output >> trash.txt
 	if [ $? -eq 0 ]; then

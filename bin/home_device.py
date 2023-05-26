@@ -1,7 +1,8 @@
-import socket
+#import socket
 import sys
-sys.path.insert(0, "../Library")
+#sys.path.insert(0, "../Library")
 from access import *
+import _thread
 
 smartmeters = []
 TCP_IP = input("Arbiter IP: ")
@@ -12,9 +13,15 @@ TCP_PORT = 5005
 type = 'device'
 id = 'home'
 
-'''
-
-'''
+def listen(conn):
+  while True:
+    info = receive(conn)
+    if(info == None):
+      continue
+    if(authorize(info[0])):
+      new_sock = make_socket()
+      connect_socket(new_sock, info[2], TCP_PORT)
+      smartmeters.append((info[1], new_sock,))
 
 def main():
   sock = make_socket()
@@ -45,23 +52,7 @@ def main():
           con[1].send("auth device")
           print("Response: " + con[1].recv(1024).decode())
           select = True
-      if(!select):
+      if not select:
         print("Invalid choice, please try again.")
-
-'''
-
-'''
-
-def listen(conn):
-  while True:
-    info = receive(conn)
-    if(info == None):
-      continue
-    if(authorize(info[0])):
-      new_sock = make_socket()
-      connect_socket(new_sock, info[2], TCP_PORT)
-      smartmeters.append((info[1], new_sock,))
-
-#----------------------------------------------------------------------------------------------
 
 main()
