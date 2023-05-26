@@ -1,4 +1,9 @@
-import hashlib
+"""Access control library.
+
+Forked from reithger/access-control-testbed. Written by Ada Clevinger, 2019.
+Updated by Hayden Walker, 2023.
+"""
+
 import re
 import socket
 import sys
@@ -7,7 +12,6 @@ from cryptography.fernet import Fernet
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
-
 
 def make_socket():
   """Create and return a socket.
@@ -299,27 +303,34 @@ def set_asymmetric_key(ip, key):
 
   communication_list_asymmetric[ip] = key
 
-""" ip address representing the home device; leads to the asymmetric private key for decryption"""
+# home device IP address
 home = "0.0.0.0"
-""" Dictionary object of [ip address : symmetric key] relationships; represents the unique key associated to each ip for decryption"""
+
+# dictionary of {ip address : symmetric key} pairs
 communication_list_symmetric = {}
-""" Dictionary object of [ip address : asymmetric key] relationships; represents the unique key associated to each ip for decryption"""
+
+# dictionary of {ip address : asymmetric key} pairs
 communication_list_asymmetric = {}
-""" Numerical value representing the desired length of the asymmetric key that should be generated"""
+
+# length of asymmetric key to generate
 key_length = 2048
-""" Asymmetric private key object for decrypting messages received that have been encrypted with the matching public key"""
+
+# asymmetric private key
 private_key = rsa.generate_private_key(
   public_exponent=65537,
   key_size=key_length,
   backend=default_backend()
 )
-""" Asymmetric public key object for encrypting messages; shared to other entities so that they can securely communicate one-way"""
+
+# asymmetric public key
 public_key = private_key.public_key()
-""" String format of the asymmetric public key that can be sent to other network entities for reconstruction"""
+
+# asymmetric public key that can be sent to other network entities
 shared_key = make_decoded(public_key.public_bytes(
   encoding=serialization.Encoding.PEM,
   format=serialization.PublicFormat.SubjectPublicKeyInfo))
-""" String term used as the common dividing term between components of messages sent between network entities"""
+
+# term separator
 split_term = "::_::"
 
 set_asymmetric_key(home, private_key)

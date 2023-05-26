@@ -5,7 +5,7 @@
 Usage: ./smartmeter.py [name]
 
 Forked from reithger/access-control-testbed. Written by Ada Clevinger, 2019.
-Updated by Hayden Walker, 2023
+Updated by Hayden Walker, 2023.
 """
 
 import _thread
@@ -140,6 +140,7 @@ class Smartmeter:
     Args:
       sock: Active socket
     """
+    
     send(sock, self.id  + split_term + "Usage:" + split_term + str(self.stored))
     close_socket(sock)
 

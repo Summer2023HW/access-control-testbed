@@ -5,7 +5,7 @@
 Usage: ./appliance.py [name] [power] [water]
 
 Forked from reithger/access-control-testbed. Written by Ada Clevinger, 2019.
-Updated by Hayden Walker, 2023
+Updated by Hayden Walker, 2023.
 """
 
 import _thread
