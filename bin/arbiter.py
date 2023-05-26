@@ -120,6 +120,7 @@ class Connection:
       for x in data[1:]:
         self.contacts.append(x)
 
+
 class Arbiter:
   """Network arbiter.
   """
@@ -129,10 +130,12 @@ class Arbiter:
     """
 
     # List of entity types in the network; i.e., Appliance/SmartMeter/etc.. Dynamically grown.
-    self.types = ['smart_meter', 'appliance', 'arbiter', 'device']
-    
+    #self.types = ['smart_meter', 'appliance', 'arbiter', 'device']
+    self.types = []
+
     # List of Connection objects representing entities in the network that have live connections.
-    self.connections = [[],[],[],[]]
+    #self.connections = [[],[],[],[]]
+    self.connections = []
     
     # List of Strings representing what ips have been contacted and connected to thus far
     self.live_ip = []
@@ -186,7 +189,7 @@ class Arbiter:
       time.sleep(2)
 
   def update_arp(self):
-    """ Update the list of connected devices that this network entity is in contact with via a bash script
+    """Update the list of connected devices that this network entity is in contact with via a bash script
     ping_network.sh.
     
     Delegated to its own method so it could be multithreaded during the time.sleep(2).

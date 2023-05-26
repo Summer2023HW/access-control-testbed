@@ -189,7 +189,6 @@ class Appliance:
       ip_key = ip.split(",")
       new_sock = make_socket()
 
-
       if connect_socket(new_sock, ip_key[0], self.TCP_PORT) and \
         sum([1 for x in self.LIVE_CONNECTIONS if x[0] == ip_key[0]]) < 1:
         set_symmetric_key(ip_key[0], ip_key[1])
