@@ -8,9 +8,7 @@ Updated by Hayden Walker, 2023.
 
 import _thread
 import re
-import socket
 import subprocess
-import sys
 import time
 
 from access import *
@@ -23,8 +21,13 @@ class Connection:
   """
 
   def __init__(self, in_ip, port):
-    """Method to establish a Connection object based on given ip address; 'open' method
-    completes the initialization by making contact to the entity at that ip.
+    """Create a new Connection.
+    
+    Connection is not open until open() is called.
+
+    Args:
+      in_ip: IP to connect to.
+      port: Port on which to connect.
     """
         
     # ip address of the entity that this Connection reaches to 
@@ -49,9 +52,10 @@ class Connection:
     self.symmetric_key = ""
   
   def open(self):
-    """Method to make contact to the entity associated to the given ip address, maintain
-    a connection to it and establish what kind of entity it is in the network.
-    Returns a Boolean
+    """Open the connection.
+    
+    Returns:
+      True if successful.
     """
 
     self.sock = make_socket()
@@ -83,8 +87,10 @@ class Connection:
       return False
     
   def send_new_ip(self, ips):
-    """Method to handle sending a list of ip addresses to the connected network entity to be
-    added to their list of contacts.
+    """Send a list of IP addresses.
+
+    Args:
+      ips: List of IP addresses to send.
     """
   
     if(ips == []):
@@ -99,8 +105,7 @@ class Connection:
       self.contacts += ip
       
   def update_contacts(self):
-    """Method to handle updating the list of contacts according to those that the connected
-    device is still communicating with.
+    """Update list of contacts.
     """
 
     send(self.sock, "contact")
@@ -116,11 +121,11 @@ class Connection:
         self.contacts.append(x)
 
 class Arbiter:
-  """
+  """Network arbiter.
   """
   
   def __init__(self):
-    """
+    """Create a new Arbiter.
     """
 
     # List of entity types in the network; i.e., Appliance/SmartMeter/etc.. Dynamically grown.
@@ -142,8 +147,7 @@ class Arbiter:
     self.TCP_PORT = 5005
 
   def main(self):
-    """Periodically scans the network and establishes contact to all ips, authorizing them as certain
-    kinds of entities and disseminating information accordingly.
+    """Periodically scans the network and establishes contact with connected IPs.
     """
 
     sock = make_socket()
@@ -182,61 +186,77 @@ class Arbiter:
       time.sleep(2)
 
   def update_arp(self):
-    """ Method to update the list of connected devices that this network entity is in contact with via a bash script
-    ping_network.sh; delegated to its own method so it could be multithreaded during the time.sleep(2).
+    """ Update the list of connected devices that this network entity is in contact with via a bash script
+    ping_network.sh.
+    
+    Delegated to its own method so it could be multithreaded during the time.sleep(2).
     """
 
     print("Updating arp cache via bash script ping_network.sh...")
     dead_ip = []
     subprocess.Popen(['./ping_network.sh'], stdout=subprocess.PIPE).communicate()
+    
     for dev_type in self.types:
       for conn in self.connections[self.types.index(dev_type)]:
         conn.update_contacts()
 
   def scan_network(self):
-    """Method to generate a list of all ip addresses that the Arbiter can detect to query
-    them about their nature.
-    Returns a list of Strings
+    """Generate a list of all ip addresses that the Arbiter can detect.
+
+    Returns:
+      List of IP addresses.
     """
 
     raw_ip = subprocess.Popen(['arp','-a'], stdout=subprocess.PIPE).communicate()
     expression = '\d+\.\d+\.\d+\.\d+'
     ip_list = re.findall(expression, str(raw_ip))
+    
     if(len(ip_list) == 0):
       f = open("../network_ip.txt", "r")
       ip_list = []
       for line in f:
         ip_list.append(line)
+    
     return ip_list
 
   def new_connection(self, ip):
-    """Method to establish a new connection given a viable ip address; attempts to create
-    a new Connection object from the provided ip and reacts accordingly to a failure
-    in this set-up.
+    """Method to establish a new connection given a viable ip address.
+    
+    Attempts to create a new Connection object from the provided ip.
+
+    Args:
+      ip: IP to connect to.
     """
 
     conn = Connection(ip, self.TCP_PORT)
 
     if(conn.open()):
       self.live_ip.append(ip)
+
       if(conn.type not in self.types):
         self.types.append(conn.type)
         self.connections.append([])
+
       self.connections[self.types.index(conn.type)].append(conn)
       print("Succesfully established connection to: " + ip)
+
     else:
       self.dead_ip.append(ip)
       print("Failed to establish connection to: " + ip)
 
   def update_list(self, conn, type):
-    """Method that checks the existing list of connected device ips against those recorded
-    as being known to a particular network entity, producing a list of new ips to provide.
-    Returns a List of Strings
+    """Update list of connected IPs.
+
+    Returns:
+      Updated list of IPs.
     """
+
     send = []
+    
     for app in self.connections[self.types.index(type)]:
       if(app.ip not in conn.contacts):
         send.append(str(app.ip) + "," + str(app.symmetric_key))
+    
     return send
 
 # start the arbiter if run directly
