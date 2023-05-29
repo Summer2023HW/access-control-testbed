@@ -13,6 +13,10 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
+
+# term separator
+split_term = "::_::"
+
 def make_socket():
   """Create and return a socket.
 
