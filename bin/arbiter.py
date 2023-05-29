@@ -256,6 +256,10 @@ class Arbiter:
 
     send = []
     
+    if type not in self.types:
+      self.types.append(type)
+      self.connections.append([])
+
     for app in self.connections[self.types.index(type)]:
       if(app.ip not in conn.contacts):
         send.append(str(app.ip) + "," + str(app.symmetric_key))
