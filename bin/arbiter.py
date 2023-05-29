@@ -131,14 +131,12 @@ class Arbiter:
 
     # List of entity types in the network; i.e., Appliance/SmartMeter/etc.. Dynamically grown.
     #self.types = ['smart_meter', 'appliance', 'arbiter', 'device']
-    #self.types = []
+    self.types = []
 
     # List of Connection objects representing entities in the network that have live connections.
     #self.connections = [[],[],[],[]]
-    #self.connections = []
+    self.connections = []
     
-    self.connections = {}
-
     # List of Strings representing what ips have been contacted and connected to thus far
     self.live_ip = []
     
@@ -168,12 +166,9 @@ class Arbiter:
       
       print("Managing existing connections: ")
       
-      #for dev_type in self.types:
-      #  print("Type: " +  dev_type)
-      #  for conn in self.connections[self.types.index(dev_type)]:
-      for dev_type in self.connections:
-        print("Type: " + dev_type)
-        for conn in self.connections[dev_type]:
+      for dev_type in self.types:
+        print("Type: " +  dev_type)
+        for conn in self.connections[self.types.index(dev_type)]:
           if(not conn.ready):
             continue
           try:
@@ -204,12 +199,8 @@ class Arbiter:
     dead_ip = []
     subprocess.Popen(['./ping_network.sh'], stdout=subprocess.PIPE).communicate()
     
-    # for dev_type in self.types:
-    #   for conn in self.connections[self.types.index(dev_type)]:
-    #    conn.update_contacts()
-
-    for dev_type in self.connections:
-      for conn in self.connections[dev_type]:
+    for dev_type in self.types:
+      for conn in self.connections[self.types.index(dev_type)]:
         conn.update_contacts()
 
   def scan_network(self):
@@ -245,11 +236,11 @@ class Arbiter:
     if(conn.open()):
       self.live_ip.append(ip)
 
-      if(conn.type not in self.connections):
-        self.connections[conn.type] = []
-      
+      if(conn.type not in self.types):
+        self.types.append(conn.type)
+        self.connections.append([])
 
-      self.connections[conn.type].append(conn)
+      self.connections[self.types.index(conn.type)].append(conn)
       print("Succesfully established connection to: " + ip)
 
     else:
@@ -265,7 +256,7 @@ class Arbiter:
 
     send = []
     
-    for app in self.connections[type]:
+    for app in self.connections[self.types.index(type)]:
       if(app.ip not in conn.contacts):
         send.append(str(app.ip) + "," + str(app.symmetric_key))
     
