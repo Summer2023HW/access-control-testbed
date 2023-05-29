@@ -159,13 +159,24 @@ def receive(sock):
   data = make_decoded(data)
   print("Received Message: " + str(data) + " from: " + str(sock.getpeername()[0]))
   
-  if(target not in communication_list_asymmetric and target not in communication_list_symmetric):
+  if (target not in communication_list_asymmetric) and \
+    (target not in communication_list_symmetric):
     handshake_responsive(sock, data)
     return None
+  
   #----   Open Key Cryptography Implementation
   
-  if(target in communication_list_symmetric):
+  if target in communication_list_symmetric:
     data = communication_list_symmetric[target].decrypt(data)
+    # data = communication_list_symmetric[target].decrypt(
+    #   data,
+    #   padding.OAEP(
+    #     mgf=padding.MGF1(algorithm=hashes.SHA256()),
+    #     algorithm=hashes.SHA256(),
+    #     label=None
+    #   )
+    # )
+
     print("Decryption: " + str(data))
   
   else:
