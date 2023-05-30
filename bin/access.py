@@ -152,49 +152,66 @@ def receive(sock):
   Returns:
     List of strings received.
   """
+
+  # receive data
   data, addr = sock.recvfrom(1024)
 
+  # attempt to get IP address of peer
   try:
     target = sock.getpeername()[0]
-  
   except:
     return None
   
+  # decode data from base64?
   data = make_decoded(data)
-  print("Received Message: " + str(data) + " from: " + str(sock.getpeername()[0]))
   
+  # print encrypted string
+  print("Received Message: " + str(data) + " from: " + str(target))
+  
+  # initiate handshake?
   if (target not in communication_list_asymmetric) and \
     (target not in communication_list_symmetric):
     handshake_responsive(sock, data)
     return None
   
-  #----   Open Key Cryptography Implementation
-  
-  if target in communication_list_symmetric:
-    # data = communication_list_symmetric[target].decrypt(data)
-    data = private_key.decrypt(
-      eval(data),
-      padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
-        label=None
-      )
-    )
+  #----   Open Key Cryptography Implementation  
+  # if target in communication_list_symmetric:
+  #   # data = communication_list_symmetric[target].decrypt(data)
+  #   data = private_key.decrypt(
+  #     data,
+  #     padding.OAEP(
+  #       mgf=padding.MGF1(algorithm=hashes.SHA256()),
+  #       algorithm=hashes.SHA256(),
+  #       label=None
+  #     )
+  #   )
+  #
+  #  # print("Decryption: " + str(data))
+  #
+  # else:
+  #   #data = communication_list_asymmetric[home].decrypt(
+  #   data = private_key.decrypt(
+  #     data,
+  #     padding.OAEP(
+  #       mgf=padding.MGF1(algorithm=hashes.SHA256()),
+  #       algorithm=hashes.SHA256(),
+  #       label=None
+  #     )
+  #   )
 
-    print("Decryption: " + str(data))
-  
-  else:
-    #data = communication_list_asymmetric[home].decrypt(
-    data = private_key.decrypt(
-      eval(data),
-      padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
-        label=None
-      )
+  data = private_key.decrypt(
+    data,
+    padding.OAEP(
+      mgf=padding.MGF1(algorithm=hashes.SHA256()),
+      algorithm=hashes.SHA256(),
+      label=None
     )
-    print("Decryption: " + str(data))
-    
+  )
+
+  # print decrypted message
+  print("Decryption: " + str(data))
+
+
   data = make_decoded(data).split(split_term)
   
   if(len(data) < 1):
