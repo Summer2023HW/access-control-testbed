@@ -169,8 +169,9 @@ def receive(sock):
     return None
   
   # decode data from base64?
-  data = make_decoded(data)
-  
+  # data = make_decoded(data)
+  data = eval(data)
+
   # print encrypted string
   print("Received Message: " + str(data) + " from: " + str(target))
   
