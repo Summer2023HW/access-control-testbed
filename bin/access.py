@@ -173,7 +173,7 @@ def receive(sock):
   if target in communication_list_symmetric:
     # data = communication_list_symmetric[target].decrypt(data)
     data = private_key.decrypt(
-      data,
+      eval(data),
       padding.OAEP(
         mgf=padding.MGF1(algorithm=hashes.SHA256()),
         algorithm=hashes.SHA256(),
@@ -186,7 +186,7 @@ def receive(sock):
   else:
     #data = communication_list_asymmetric[home].decrypt(
     data = private_key.decrypt(
-      data,
+      eval(data),
       padding.OAEP(
         mgf=padding.MGF1(algorithm=hashes.SHA256()),
         algorithm=hashes.SHA256(),
