@@ -221,7 +221,7 @@ def receive(sock):
   print("Decryption: " + str(decrypted))
 
   # remove b' ... ' wrapper
-  message_string = str(decrypted)[2:len(str(decrypted) - 1)]
+  message_string = str(decrypted)[2:len(str(decrypted)) - 1]
 
   #data = make_decoded(data).split(split_term)
   message = message_string.split(split_term)
