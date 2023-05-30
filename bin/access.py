@@ -171,7 +171,8 @@ def receive(sock):
   #----   Open Key Cryptography Implementation
   
   if target in communication_list_symmetric:
-    data = communication_list_symmetric[target].decrypt(data)
+    # data = communication_list_symmetric[target].decrypt(data)
+    data = private_key.decrypt(data)
     # data = communication_list_symmetric[target].decrypt(
     #   data,
     #   padding.OAEP(
@@ -184,7 +185,8 @@ def receive(sock):
     print("Decryption: " + str(data))
   
   else:
-    data = communication_list_asymmetric[home].decrypt(
+    #data = communication_list_asymmetric[home].decrypt(
+    data = private_key.decrypt(
       data,
       padding.OAEP(
         mgf=padding.MGF1(algorithm=hashes.SHA256()),
