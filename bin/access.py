@@ -208,7 +208,7 @@ def receive(sock):
   #   )
 
   # decrypt message
-  data = private_key.decrypt(
+  decrypted = private_key.decrypt(
     data,
     padding.OAEP(
       mgf=padding.MGF1(algorithm=hashes.SHA256()),
@@ -218,16 +218,16 @@ def receive(sock):
   )
 
   # print decrypted message
-  print("Decryption: " + str(data))
+  print("Decryption: " + str(decrypted))
 
 
   #data = make_decoded(data).split(split_term)
-  data = data.split(split_term)
+  message = str(decrypted).split(split_term)
 
-  if(len(data) < 1):
+  if(len(message) < 1):
     return None
   
-  return data
+  return message
 
 def authorize(info):
   """Authorize authentication key received from a message.
