@@ -220,9 +220,11 @@ def receive(sock):
   # print decrypted message
   print("Decryption: " + str(decrypted))
 
+  message_string = str(decrypted)[2:]
 
   #data = make_decoded(data).split(split_term)
-  message = str(decrypted).split(split_term)
+  message = message_string.split(split_term)
+
 
   print(message, file=sys.stderr) # debug string
 
