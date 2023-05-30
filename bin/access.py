@@ -169,7 +169,7 @@ def receive(sock):
     return None
   
   # decode data from base64?
-  # data = make_decoded(data)
+  data = make_decoded(data)
   #data = eval(data)
 
   # print encrypted string
@@ -221,8 +221,9 @@ def receive(sock):
   print("Decryption: " + str(data))
 
 
-  data = make_decoded(data).split(split_term)
-  
+  #data = make_decoded(data).split(split_term)
+  data = data.split(split_term)
+
   if(len(data) < 1):
     return None
   
@@ -270,7 +271,7 @@ def handshake_responsive(sock, info):
   sock.send(make_encoded(authenticate() + split_term + "key" + split_term + shared_key))
   
 
-
+  # not sure if make_decoded is needed here
   info = make_decoded(info).split(split_term)
   
   communication_list_asymmetric[sock.getpeername()[0]] = recreate_public_key(info[2])
