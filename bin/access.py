@@ -224,6 +224,8 @@ def receive(sock):
   #data = make_decoded(data).split(split_term)
   message = str(decrypted).split(split_term)
 
+  print(message, file=sys.stderr) # debug string
+
   if(len(message) < 1):
     return None
   
