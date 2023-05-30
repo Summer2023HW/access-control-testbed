@@ -266,8 +266,13 @@ def handshake_responsive(sock, info):
     info:
   """
 
+  # auth::_::key::_::[key]::_::[key]
   sock.send(make_encoded(authenticate() + split_term + "key" + split_term + shared_key))
-  info = info.split(split_term)
+  
+
+
+  info = make_decoded(info).split(split_term)
+  
   communication_list_asymmetric[sock.getpeername()[0]] = recreate_public_key(info[2])
 
 def recreate_public_key(key):
