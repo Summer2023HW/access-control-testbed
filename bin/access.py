@@ -117,10 +117,16 @@ def send(sock, message):
     to_send = make_encoded(authenticate() + split_term + message)
     
     if(target in communication_list_symmetric):
-      to_send = communication_list_symmetric[target].encrypt(to_send)
+      to_send = communication_list_symmetric[target].encrypt(
+        to_send,
+        padding.OAEP(
+          mgf=padding.MGF1(algorithm=hashes.SHA256()),
+          algorithm=hashes.SHA256(),
+          label=None
+        )
+      )
     
     elif(target in communication_list_asymmetric):
-      
       to_send = communication_list_asymmetric[target].encrypt(
         to_send,
         padding.OAEP(
@@ -187,6 +193,7 @@ def receive(sock):
   #   )
   #
   #  # print("Decryption: " + str(data))
+  #  # print("Decryption: " + str(data))
   #
   # else:
   #   #data = communication_list_asymmetric[home].decrypt(
@@ -199,6 +206,7 @@ def receive(sock):
   #     )
   #   )
 
+  # decrypt message
   data = private_key.decrypt(
     data,
     padding.OAEP(
