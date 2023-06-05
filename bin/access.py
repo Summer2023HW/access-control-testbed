@@ -104,6 +104,9 @@ def send(sock, message):
     True if successful, otherwise False.   
   """
 
+  # TODO: This is temporary
+  return send_text(message, sock)
+
   try:
     target = sock.getpeername()[0]
   
@@ -218,16 +221,17 @@ def receive(sock):
   )
 
   # print decrypted message
-  print("Decryption: " + str(decrypted))
+  #print("Decryption: " + str(decrypted))
 
   # remove b' ... ' wrapper
   message_string = str(decrypted)[2:len(str(decrypted)) - 1]
 
+  print("Decryption: " + str(message_string))
+
   #data = make_decoded(data).split(split_term)
   message = message_string.split(split_term)
 
-
-  print(message, file=sys.stderr) # debug string
+  # print(message, file=sys.stderr) # debug string
 
   if(len(message) < 1):
     return None
@@ -355,6 +359,54 @@ def set_asymmetric_key(ip, key):
     pass
 
   communication_list_asymmetric[ip] = key
+
+
+def send_text(text, sock):
+  """Send a message.
+
+  Precondition: Message is not encrypted or decoded
+  Postcondition: Encrypted message is sent to recipient
+  """
+  
+  print("Sending message: '" + text + "' to: " + str(target))
+
+  # encode message  
+  target = sock.getpeername()[0]    
+  to_send = make_encoded(authenticate() + split_term + text)
+  encrypted = ''
+      
+  # if we have target's public key, encrypt
+  if(target in communication_list_symmetric):
+    
+    # encrypt message
+    encrypted = communication_list_symmetric[target].encrypt(
+      to_send,
+      padding.OAEP(
+        mgf=padding.MGF1(algorithm=hashes.SHA256()),
+        algorithm=hashes.SHA256(),
+        label=None
+      )
+    )
+
+  # otherwise handshake?  
+  else:
+    handshake_active(sock)
+    return send_text(text, sock)
+  
+  # send message
+  sock.send(encrypted)
+  print("Successfully sent message.")
+  return True
+  
+def receive_text(sock):
+  """Receive a message.
+
+  Precondition: Message is encrypted and encoded
+  Postcondition: Message is decrypted, decoded, and returned
+  """
+  pass
+
+
 
 # home device IP address
 home = "0.0.0.0"

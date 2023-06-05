@@ -177,7 +177,7 @@ class Arbiter:
             target = "?"
           print("ip: " + str(target))
           if(dev_type == "appliance"):
-            conn.send_new_ip(self.update_list(conn, "smart_meter"))
+            conn.send_new_ip(self.update_list(conn, "smart_meter")) # TODO: error here?
           elif(dev_type == "device"):
             conn.send_new_ip(self.update_list(conn, "smart_meter"))
       
