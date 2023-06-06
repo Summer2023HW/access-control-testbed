@@ -455,7 +455,8 @@ def receive_text(sock):
   decrypted = decoded
 
   # remove b' ... ' wrapper
-  message_string = str(decrypted)[2:len(str(decrypted)) - 1]
+  #message_string = str(decrypted)[2:len(str(decrypted)) - 1]
+  message_string = str(decrypted)
   print("Decryption: " + str(message_string))
 
   #data = make_decoded(data).split(split_term)
