@@ -162,6 +162,9 @@ def receive(sock):
     List of strings received.
   """
 
+  # TODO: This is temporary
+  return receive_text(sock)
+
   # receive data
   data, addr = sock.recvfrom(1024)
 
@@ -364,15 +367,23 @@ def set_asymmetric_key(ip, key):
 def send_text(text, sock):
   """Send a message.
 
+  Args:
+    text: Text to send.
+    sock: Socket to send on.
+  
+  Returns:
+    True if successful.
+
   Precondition: Message is not encrypted or decoded
   Postcondition: Encrypted message is sent to recipient
   """
   
+  target = sock.getpeername()[0]     
   print("Sending message: '" + text + "' to: " + str(target))
-
-  # encode message  
-  target = sock.getpeername()[0]    
-  to_send = make_encoded(authenticate() + split_term + text)
+  
+  # encode in base 64
+  unencoded = authenticate() + split_term + text
+  to_send = unencoded.encode()
   encrypted = ''
       
   # if we have target's public key, encrypt
@@ -401,11 +412,56 @@ def send_text(text, sock):
 def receive_text(sock):
   """Receive a message.
 
+  Args:
+    sock: Socket to receive message on.
+  
+  Returns:
+    List of messages received.
+
   Precondition: Message is encrypted and encoded
   Postcondition: Message is decrypted, decoded, and returned
   """
-  pass
 
+  # get data and name of sender
+  data, addr = sock.recvfrom(1024)
+  target = sock.getpeername()[0]
+
+  # decode data from base64?
+  decoded = data.decode()
+  
+  # print encrypted string
+  print("Received Message: " + decoded + " from: " + target)
+    
+  # initiate handshake?
+  if (target not in communication_list_asymmetric) and \
+    (target not in communication_list_symmetric):
+    handshake_responsive(sock, data)
+    return None
+
+  # decrypt message
+  decrypted = private_key.decrypt(
+    data,
+    padding.OAEP(
+      mgf=padding.MGF1(algorithm=hashes.SHA256()),
+      algorithm=hashes.SHA256(),
+      label=None
+    )
+  )
+
+  # print decrypted message
+  #print("Decryption: " + str(decrypted))
+
+  # remove b' ... ' wrapper
+  message_string = str(decrypted)[2:len(str(decrypted)) - 1]
+  print("Decryption: " + str(message_string))
+
+  #data = make_decoded(data).split(split_term)
+  message = message_string.split(split_term)
+
+  if(len(message) < 1):
+    return None
+    
+  return message
 
 
 # home device IP address
@@ -433,7 +489,8 @@ public_key = private_key.public_key()
 # asymmetric public key that can be sent to other network entities
 shared_key = make_decoded(public_key.public_bytes(
   encoding=serialization.Encoding.PEM,
-  format=serialization.PublicFormat.SubjectPublicKeyInfo))
+  format=serialization.PublicFormat.SubjectPublicKeyInfo)
+)
 
 # term separator
 split_term = "::_::"
