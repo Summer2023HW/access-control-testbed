@@ -384,8 +384,9 @@ def send_text(text, sock):
   # encode in base 64
   unencoded = authenticate() + split_term + text
   to_send = unencoded.encode()
-  encrypted = ''
-      
+  #encrypted = ''
+  encrypted = to_send
+  '''
   # if we have target's public key, encrypt
   if(target in communication_list_symmetric):
     
@@ -403,7 +404,7 @@ def send_text(text, sock):
   else:
     handshake_active(sock)
     return send_text(text, sock)
-  
+  '''
   # send message
   sock.send(encrypted)
   print("Successfully sent message.")
@@ -431,7 +432,8 @@ def receive_text(sock):
   
   # print encrypted string
   print("Received Message: " + decoded + " from: " + target)
-    
+
+  ''' 
   # initiate handshake?
   if (target not in communication_list_asymmetric) and \
     (target not in communication_list_symmetric):
@@ -447,9 +449,10 @@ def receive_text(sock):
       label=None
     )
   )
-
+  '''
   # print decrypted message
   #print("Decryption: " + str(decrypted))
+  decrypted = decoded
 
   # remove b' ... ' wrapper
   message_string = str(decrypted)[2:len(str(decrypted)) - 1]
