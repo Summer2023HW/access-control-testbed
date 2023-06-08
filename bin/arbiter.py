@@ -60,20 +60,20 @@ class Connection:
 
     self.sock = make_socket()
 
-    if(not connect_socket(self.sock, self.ip, self.TCP_PORT)):
+    if not connect_socket(self.sock, self.ip, self.TCP_PORT):
       return False
     
     send(self.sock, "who")
     data = receive(self.sock)
     
-    if(data == None):
+    if data == None:
       return False
     
     auth = data[0]
     target_type = data[1]
     target_id = data[2]
     
-    if(authorize(auth)):
+    if authorize(auth):
       self.id = target_id
       self.type = target_type
       self.ready = True
@@ -93,7 +93,7 @@ class Connection:
       ips: List of IP addresses to send.
     """
   
-    if(ips == []):
+    if ips == []:
       return
     
     message = "new_ip"
@@ -101,7 +101,7 @@ class Connection:
     for ip in ips:
       message += split_term + "" + ip
     
-    if(send(self.sock, message)):
+    if send(self.sock, message):
       self.contacts += ip
       
   def update_contacts(self):
@@ -116,7 +116,7 @@ class Connection:
     
     self.contacts = []
     
-    if(authorize(data[0])):
+    if authorize(data[0]):
       for x in data[1:]:
         self.contacts.append(x)
 
@@ -161,29 +161,38 @@ class Arbiter:
       print("Establishing new connections: ")
       
       for x in self.scan_network():
-        if(x not in self.live_ip and x not in self.dead_ip):
+        if (x not in self.live_ip) and (x not in self.dead_ip):
           _thread.start_new_thread(self.new_connection, (x,))
       
       print("Managing existing connections: ")
       
       for dev_type in self.types:
         print("Type: " +  dev_type)
+        
         for conn in self.connections[self.types.index(dev_type)]:
-          if(not conn.ready):
+          if not conn.ready:
             continue
           try:
             target = conn.sock.getpeername()
           except:
             target = "?"
+          
           print("ip: " + str(target))
-          if(dev_type == "appliance"):
-            conn.send_new_ip(self.update_list(conn, "smart_meter")) # TODO: error here?
-          elif(dev_type == "device"):
+          
+          # not sure what this is doing
+          if dev_type == "appliance":
+            # conn.send_new_ip(self.update_list(conn, "smart_meter")) # TODO: error here?
+            conn.send_new_ip(self.update_list(conn, "appliance"))
+          elif dev_type == "device":
+            # conn.send_new_ip(self.update_list(conn, "smart_meter"))
+            conn.send_new_ip(self.update_list(conn, "device"))
+          # added this
+          elif dev_type == "smart_meter":
             conn.send_new_ip(self.update_list(conn, "smart_meter"))
       
       count = (count + 1) % 10
       
-      if(count == 0):
+      if count == 0:
         _thread.start_new_thread(self.update_arp, ())
       
       time.sleep(2)
@@ -213,8 +222,8 @@ class Arbiter:
     raw_ip = subprocess.Popen(['arp','-a'], stdout=subprocess.PIPE).communicate()
     expression = '\d+\.\d+\.\d+\.\d+'
     ip_list = re.findall(expression, str(raw_ip))
-    
-    if(len(ip_list) == 0):
+  
+    if len(ip_list) == 0:
       f = open("../network_ip.txt", "r")
       ip_list = []
       for line in f:
@@ -233,10 +242,10 @@ class Arbiter:
 
     conn = Connection(ip, self.TCP_PORT)
 
-    if(conn.open()):
+    if conn.open():
       self.live_ip.append(ip)
 
-      if(conn.type not in self.types):
+      if conn.type not in self.types:
         self.types.append(conn.type)
         self.connections.append([])
 
@@ -261,7 +270,7 @@ class Arbiter:
       self.connections.append([])
 
     for app in self.connections[self.types.index(type)]:
-      if(app.ip not in conn.contacts):
+      if app.ip not in conn.contacts:
         send.append(str(app.ip) + "," + str(app.symmetric_key))
     
     return send

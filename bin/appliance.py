@@ -162,11 +162,17 @@ class Appliance:
     
     # build up list of contacts
     list_conn = ""
-    for connection in self.LIVE_CONNECTIONS:
-      list_conn += split_term + connection[0]
+    for connection in range(len(self.LIVE_CONNECTIONS)):
+      list_conn += self.LIVE_CONNECTIONS[connection][0]
+      # add ::_:: between contacts
+      if connection < len(self.LIVE_CONNECTIONS) - 1:
+        list_conn += split_term
+
+    #for connection in self.LIVE_CONNECTIONS:
+    #  list_conn += split_term + connection[0]
     
     # send list
-    send(sock, list_conn[len(split_term):])
+    send(sock, list_conn)
 
   def react_receive_symmetric_key(self, sock, info):
     """Update symmetric key.
